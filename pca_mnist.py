@@ -1,14 +1,8 @@
-#
+# This script works through PCA for the MNIST dataset
 # Fabio Fehr
 # 10 June 2020
 
-import open3d as o3d
 import numpy as np
-import os
-
-from keras.datasets import mnist
-from keras.layers import Input, Dense
-from keras import regularizers, models, optimizers
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from keras.datasets import mnist
@@ -33,7 +27,7 @@ def AnalyticalPCA(y, dimension):
 # mean_ : array, shape (n_features,)
 
 ######################################################################################################################
-# Little MNIST example ###############################################################################################
+# MNIST example ######################################################################################################
 ######################################################################################################################
 
 # load the data
@@ -62,18 +56,20 @@ def PlotResults(p,dimension,name):
         plt.axis('off')
     plt.show()
 
-#PlotResults(p_analytical,16,'AnalyticalPCA')
+PlotResults(p_analytical,16,'AnalyticalPCA')
 
-# pcaMean = AnalyticalPCA(y,16).mean_
-# pcaMean = np.reshape(pcaMean,[1,shape_y[1],shape_y[2]]) # has dimensions (1, 28, 28)
-#
-# # This plot the mean shape
-# plt.figure()
-# plt.imshow(pcaMean[0, :, :], cmap='gray')
-# plt.axis('off')
-# plt.show()
+# Plot the mean digit
+
+pcaMean = AnalyticalPCA(y,16).mean_
+pcaMean = np.reshape(pcaMean,[1,shape_y[1],shape_y[2]]) # has dimensions (1, 28, 28)
+
+plt.figure()
+plt.imshow(pcaMean[0, :, :], cmap='gray')
+plt.axis('off')
+plt.show()
 
 # plot the first image (Its a 5)
+
 firstImage =  np.reshape(y[0, :],[1,shape_y[1],shape_y[2]])
 plt.figure()
 plt.imshow(firstImage[0, :, :], cmap='gray')
@@ -93,18 +89,23 @@ pca = AnalyticalPCA(y, 16)
 mean = pca.mean_  # (784,) meaning a vector
 eigenvals = pca.singular_values_
 
-X = y # meaning (60000, 784)
-V = pca.components_.T # (784, 16)
-b = np.dot(X, V)# PC Scores or shape parameters 60000 x 16
-#VVt = np.dot(V, V.T) # (784, 784)
+X = y                     # meaning (60000, 784)
+V = pca.components_.T     # (784, 16)
+b = np.dot(X, V)          # PC Scores or shape parameters 60000 x 16
 
 hat_x = np.dot(b, V.T) + mean
 
-reconstructionImage = np.reshape(hat_x,[60000,shape_y[1],shape_y[2]])
+reconstructionImage = np.reshape(hat_x, [60000, shape_y[1], shape_y[2]])
 plt.figure()
 plt.imshow(reconstructionImage[0, :, :], cmap='gray')
 plt.axis('off')
 plt.show()
+
+######################################################################################################################
+# Scattergram ########################################################################################################
+######################################################################################################################
+
+# This is important to see if there are any non-linear dependencies in the data.
 
 # now lets plot the shape parameters against one another.
 plt.scatter(b[:,0], b[:,1], alpha=0.5)
@@ -127,28 +128,38 @@ def PlotResultsB(b,dimension):
 
 PlotResultsB(b,16)
 
-# How many nodes
+######################################################################################################################
+# How many nodes required?  ##########################################################################################
+######################################################################################################################
+
+#TODO: Calculate PCA for as many nodes as possible then use var explained to determine the dimension
+
 plt.plot(np.cumsum(pca.explained_variance_)/ sum(pca.explained_variance_))
 plt.ylabel('explained_variance')
 plt.show()
 
-# extreme values in modes of variation
+######################################################################################################################
+# Modes of variation  ##########################################################################################
+######################################################################################################################
+
+# Here we will plot the modes of variation at their extremes -3sqrt(lamba) and 3sqrt(lambda)
 
 X = y[0,:] # meaning (60000, 784)
 V = pca.components_.T # (784, 16)
 extremePosb = 3*np.sqrt(eigenvals[0]) * np.ones((1,16))
 extremeNegb = -3*np.sqrt(eigenvals[0]) * np.ones((1,16))
 
-
 hat_x_pos = np.dot(extremePosb, V.T) + mean
 hat_x_neg = np.dot(extremeNegb, V.T) + mean
 
+# Positive extreme plot
 reconstruction_hat_x_pos = np.reshape(hat_x_pos,[1,shape_y[1],shape_y[2]])
 plt.figure()
 plt.imshow(reconstruction_hat_x_pos[0, :, :], cmap='gray')
 plt.axis('off')
 plt.show()
 
+# Negative extreme plot
 reconstruction_hat_x_neg = np.reshape(hat_x_neg,[1,shape_y[1],shape_y[2]])
 plt.figure()
 plt.imshow(reconstruction_hat_x_neg[0, :, :], cmap='gray')
