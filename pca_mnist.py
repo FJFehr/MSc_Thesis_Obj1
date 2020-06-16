@@ -30,6 +30,7 @@ def AnalyticalPCA(y, dimension):
 # MNIST example ######################################################################################################
 ######################################################################################################################
 
+dimension = 16
 # load the data
 (y, _), (_, _) = mnist.load_data()
 
@@ -41,26 +42,28 @@ shape_y = y.shape # (60000, 28, 28)
 y = np.reshape(y,[shape_y[0],shape_y[1]*shape_y[2]]).astype('float32')/255 # (60000, 784)
 
 # Now we have squeezed those 60000 down to 16 images of principal components
-p_analytical = AnalyticalPCA(y,16).components_ # has dimensions (16, 784)
+p_analytical = AnalyticalPCA(y,dimension).components_ # has dimensions (16, 784)
 
 # reshape before plotting
-p_analytical = np.reshape(p_analytical,[16,shape_y[1],shape_y[2]]) # has dimensions (16, 28, 28)
+p_analytical = np.reshape(p_analytical,[dimension,shape_y[1],shape_y[2]]) # has dimensions (16, 28, 28)
 
 # plot the principal components
-def PlotResults(p,dimension,name):
+def PlotResults(p,dimension):
     sqrt_dimension = int(np.ceil(np.sqrt(dimension)))
     plt.figure()
     for i in range(p.shape[0]):
         plt.subplot(sqrt_dimension, sqrt_dimension, i + 1)
         plt.imshow(p[i, :, :],cmap='gray')
+        plt.title(str(i + 1))
         plt.axis('off')
+    plt.savefig('pictures/PCA_components_dim' + str(dimension) + '.png')
     plt.show()
 
-PlotResults(p_analytical,16,'AnalyticalPCA')
+PlotResults(p_analytical,dimension)
 
 # Plot the mean digit
 
-pcaMean = AnalyticalPCA(y,16).mean_
+pcaMean = AnalyticalPCA(y,dimension).mean_
 pcaMean = np.reshape(pcaMean,[1,shape_y[1],shape_y[2]]) # has dimensions (1, 28, 28)
 
 plt.figure()
@@ -72,8 +75,10 @@ plt.show()
 
 firstImage =  np.reshape(y[0, :],[1,shape_y[1],shape_y[2]])
 plt.figure()
+plt.title("Reconstruction")
 plt.imshow(firstImage[0, :, :], cmap='gray')
 plt.axis('off')
+plt.savefig('pictures/PCA_dim' + str(dimension) + '.png')
 plt.show()
 
 # plot the pca reconstruction for the first image
@@ -85,7 +90,7 @@ plt.show()
 # reconstruction = PC scores x Eigen vectors transposed + Mean
 # reconstruction = X V V^T + Mean
 # dimension X and Mean : 1x784 , V dimension (16, 784)
-pca = AnalyticalPCA(y, 16)
+pca = AnalyticalPCA(y, dimension)
 mean = pca.mean_  # (784,) meaning a vector
 eigenvals = pca.singular_values_
 
@@ -97,8 +102,10 @@ hat_x = np.dot(b, V.T) + mean
 
 reconstructionImage = np.reshape(hat_x, [60000, shape_y[1], shape_y[2]])
 plt.figure()
+plt.title("Reconstruction")
 plt.imshow(reconstructionImage[0, :, :], cmap='gray')
 plt.axis('off')
+plt.savefig('pictures/PCA_dim' + str(dimension) + '.png')
 plt.show()
 
 ######################################################################################################################
@@ -108,7 +115,7 @@ plt.show()
 # This is important to see if there are any non-linear dependencies in the data.
 
 # now lets plot the shape parameters against one another.
-plt.scatter(b[:,0], b[:,1], alpha=0.5)
+plt.scatter(b[:,0], b[:,1], alpha=0.5, s=0.5)
 plt.title('Scattergram of shape parameters')
 plt.xlabel('b1')
 plt.ylabel('b2')
@@ -118,15 +125,17 @@ plt.ylabel('b2')
 plt.show()
 
 #plot scattergrams of shape parameters.
-def PlotResultsB(b,dimension):
-    sqrt_dimension = int(np.ceil(np.sqrt(dimension)))
+def PlotResultsB(b,num_of_modes = dimension):
     plt.figure()
-    for i in range(b.shape[1]):
-        plt.subplot(sqrt_dimension, sqrt_dimension, i + 1)
-        plt.scatter(b[:,0], b[:,i], alpha=0.5)
+    fig_count = 1
+    for i in range(num_of_modes):
+        for j in range(num_of_modes):
+            plt.subplot(num_of_modes, num_of_modes, fig_count)
+            plt.scatter(b[:,i], b[:,j], alpha=0.2, s=0.5)
+            fig_count += 1
     plt.show()
 
-PlotResultsB(b,16)
+PlotResultsB(b,4)
 
 ######################################################################################################################
 # How many nodes required?  ##########################################################################################
@@ -144,24 +153,46 @@ plt.show()
 
 # Here we will plot the modes of variation at their extremes -3sqrt(lamba) and 3sqrt(lambda)
 
-X = y[0,:] # meaning (60000, 784)
-V = pca.components_.T # (784, 16)
-extremePosb = 3*np.sqrt(eigenvals[0]) * np.ones((1,16))
-extremeNegb = -3*np.sqrt(eigenvals[0]) * np.ones((1,16))
+# X = y[0,:] # meaning (60000, 784)
+# V = pca.components_.T # (784, 16)
+# extremePosb = 3*np.sqrt(eigenvals[0]) * np.ones((1,dimension))
+# extremeNegb = -3*np.sqrt(eigenvals[0]) * np.ones((1,dimension))
+#
+# hat_x_pos = np.dot(extremePosb, V.T) + mean
+# hat_x_neg = np.dot(extremeNegb, V.T) + mean
+#
+# # Positive extreme plot
+# reconstruction_hat_x_pos = np.reshape(hat_x_pos,[1,shape_y[1],shape_y[2]])
+# plt.figure()
+# plt.imshow(reconstruction_hat_x_pos[0, :, :], cmap='gray')
+# plt.axis('off')
+# plt.show()
+#
+# # Negative extreme plot
+# reconstruction_hat_x_neg = np.reshape(hat_x_neg,[1,shape_y[1],shape_y[2]])
+# plt.figure()
+# plt.imshow(reconstruction_hat_x_neg[0, :, :], cmap='gray')
+# plt.axis('off')
+# plt.show()
 
-hat_x_pos = np.dot(extremePosb, V.T) + mean
-hat_x_neg = np.dot(extremeNegb, V.T) + mean
+def PlotModesVaration(mean=mean,eigenvals=eigenvals,number_of_modes=5):
+    min_extreme = -3
+    pics_per_mode = 7
 
-# Positive extreme plot
-reconstruction_hat_x_pos = np.reshape(hat_x_pos,[1,shape_y[1],shape_y[2]])
-plt.figure()
-plt.imshow(reconstruction_hat_x_pos[0, :, :], cmap='gray')
-plt.axis('off')
-plt.show()
+    fig_count = 1
+    plt.figure()
+    for i in range(number_of_modes):
+        for j in range(pics_per_mode):
+            plt.subplot(number_of_modes, pics_per_mode, fig_count)
+            sdFromMean = (min_extreme+j) * np.sqrt(eigenvals[i])
+            x_hat = sdFromMean * V[:,i] + mean
+            reconstruction_x_hat = np.reshape(x_hat, [1, shape_y[1], shape_y[2]])
+            plt.imshow(reconstruction_x_hat[0, :, :], cmap='gray')
+            plt.axis('off')
+            plt.title(str((min_extreme+j))+'sd')
+            fig_count += 1
 
-# Negative extreme plot
-reconstruction_hat_x_neg = np.reshape(hat_x_neg,[1,shape_y[1],shape_y[2]])
-plt.figure()
-plt.imshow(reconstruction_hat_x_neg[0, :, :], cmap='gray')
-plt.axis('off')
-plt.show()
+    plt.savefig('pictures/PCA_modesVariation_dim' + str(dimension) + '.png')
+    plt.show()
+
+PlotModesVaration()
