@@ -132,6 +132,8 @@ plt.scatter(b[:,0], b[:,1], alpha=0.5, s=0.5)
 plt.title('Scattergram of shape parameters')
 plt.xlabel('b1')
 plt.ylabel('b2')
+plt.axhline(0,color = "r" )
+plt.axvline(0,color = "r")
 #unhelpful in this context Very much between the bounds
 #plt.xlim(-3*np.sqrt(eigenvals[0]),3*np.sqrt(eigenvals[0]))
 #plt.ylim(-3*np.sqrt(eigenvals[1]),3*np.sqrt(eigenvals[1]))
@@ -145,6 +147,8 @@ def PlotResultsB(b,num_of_modes = dimension):
         for j in range(num_of_modes):
             plt.subplot(num_of_modes, num_of_modes, fig_count)
             plt.scatter(b[:,i], b[:,j], alpha=0.2, s=0.5)
+            plt.axhline(0, color="r")
+            plt.axvline(0, color="r")
             fig_count += 1
     plt.show()
 

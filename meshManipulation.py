@@ -7,14 +7,6 @@ import numpy as np
 import os
 
 ######################################################################################################################
-# Load dataset of meshes #############################################################################################
-######################################################################################################################
-
-direc = "meshes/"
-paths = [os.path.join(direc, i) for i in os.listdir(direc)]
-meshes = [o3d.io.read_triangle_mesh(path) for path in paths]  # this is a list of meshes
-
-######################################################################################################################
 # Mesh to Vector, Vector to Mesh #####################################################################################
 ######################################################################################################################
 # Some useful class types to keep in mind
@@ -43,23 +35,32 @@ def vecToMesh(list, triangles, N=3):
     newMesh = o3d.geometry.TriangleMesh(newVerticies, triangles)
     return newMesh
 
-######################################################################################################################
-# Basic visualisation ################################################################################################
-######################################################################################################################
-current_mesh = meshes[0]
+if __name__ == "__main__":
+    ######################################################################################################################
+    # Load dataset of meshes #############################################################################################
+    ######################################################################################################################
 
-print("This is what the original mesh looks like")
-current_mesh.compute_vertex_normals()
-o3d.visualization.draw_geometries([current_mesh])
+    direc = "meshes/"
+    paths = [os.path.join(direc, i) for i in os.listdir(direc)]
+    meshes = [o3d.io.read_triangle_mesh(path) for path in paths]  # this is a list of meshes
 
-# Convert to vector
-meshVec = meshToVec(current_mesh)
-print(meshVec)
+    ######################################################################################################################
+    # Basic visualisation ################################################################################################
+    ######################################################################################################################
+    current_mesh = meshes[0]
 
-# Convert back to mesh
-newMesh = vecToMesh(list=meshVec,triangles=current_mesh.triangles)
+    print("This is what the original mesh looks like")
+    current_mesh.compute_vertex_normals()
+    o3d.visualization.draw_geometries([current_mesh])
 
-print("This is what the new mesh looks like")
-newMesh.compute_vertex_normals()
-newMesh.paint_uniform_color([1, 0.706, 0])    # Change colour so its easier to see who is who in the zoo
-o3d.visualization.draw_geometries([newMesh])
+    # Convert to vector
+    meshVec = meshToVec(current_mesh)
+    print(meshVec)
+
+    # Convert back to mesh
+    newMesh = vecToMesh(list=meshVec, triangles=current_mesh.triangles)
+
+    print("This is what the new mesh looks like")
+    newMesh.compute_vertex_normals()
+    newMesh.paint_uniform_color([1, 0.706, 0])  # Change colour so its easier to see who is who in the zoo
+    o3d.visualization.draw_geometries([newMesh])
