@@ -71,6 +71,7 @@ if __name__ == '__main__':
     components = pca_faust.components_
     # Get the eigen values
     eigenvalues = pca_faust.singular_values_
+    np.savetxt('results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
     # Get the mean
     mean = pca_faust.mean_
     # Get triangles
@@ -84,7 +85,7 @@ if __name__ == '__main__':
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
-    np.savetxt('faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
+    np.savetxt('results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
     #modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_mov_")
