@@ -1,172 +1,105 @@
-#
-#
-#
+# This script performs pca on FAUST.
+# Fabio Fehr
+# 22 June 2020
 
 import open3d as o3d
 import numpy as np
-import os
 import matplotlib.pyplot as plt
-from meshManipulation import vecToMesh , meshToVec
+from meshManipulation import vecToMesh , \
+    meshToVec, meshToData,mean3DVis,\
+    loadMeshes,PlotModesVaration,\
+    modesOfVariationVis,variationExplained,\
+    PlotScatterGram,shapeParameters,meshVisSave
+
+
 from sklearn.decomposition import PCA
 
-######################################################################################################################
-# Load dataset of meshes #############################################################################################
-######################################################################################################################
-
-direc = "meshes/"
-paths = [os.path.join(direc, i) for i in os.listdir(direc)]
-meshes = [o3d.io.read_triangle_mesh(path) for path in paths]  # this is a list of meshes
-
-data = np.empty((100,20670)) # 100 x 20670
-for i in range(0, len(meshes)):
-    current_mesh = meshes[i]
-    meshVec = meshToVec(current_mesh)
-    data[i,:] = meshVec
-
-######################################################################################################################
-# PCA function #######################################################################################################
-######################################################################################################################
-
-# Analytical PCA
 def AnalyticalPCA(y, dimension):
+    '''
+
+    :param y: The data to reduce
+    :param dimension: dimension to reduce to
+    :return: pca fit object
+    '''
     pca = PCA(n_components=dimension)
     return pca.fit(y)
-    # loadings = pca.components_
-    # return loadings
 
-#  components_ : array, shape (n_components, n_features)
-#   returns the  Principal axes in feature space, representing the directions of maximum variance in the data
-# explained_variance_ : array, shape (n_components,)
-#   The amount of variance explained by each of the selected components.
-# singular_values_ : array, shape (n_components,)
-#   The singular values corresponding to each of the selected components.
-# mean_ : array, shape (n_features,)
+    #  components_ : array, shape (n_components, n_features)
+    #   returns the  Principal axes in feature space, representing the directions of maximum variance in the data
+    # explained_variance_ : array, shape (n_components,)
+    #   The amount of variance explained by each of the selected components.
+    # singular_values_ : array, shape (n_components,)
+    #   The singular values corresponding to each of the selected components.
+    # mean_ : array, shape (n_features,)
 
-######################################################################################################################
-# FAUST example ######################################################################################################
-######################################################################################################################
+def principalComponent3DVis(pca_obj, triangles, number_of_vis, name):
+    '''
+    This function takes in pca and saves 3D visualisations of the principal components
+    :param pca_obj: the PCA object from sklearn.decomposition
+    :param triangles: this shows the connections for the 3D object
+    :param number_of_vis: How many PCs to visualise
+    :param name: String name to be saved
+    :return: nothing
+    '''
 
-dimension = 8
-# load the data
-y = data
+    components = pca_obj.components_
 
-# 100 examples of images in y, each 20670
-shape_y = y.shape
+    for i in range(0, number_of_vis):
+        # create a mesh
+        newMesh = vecToMesh(list=components[i, :],
+                            triangles= triangles)
 
-# Now we have squeezed those 60000 down to 16 images of principal components
-pca_faust = AnalyticalPCA(y,dimension) # has dimensions (16, 20670)
+        meshVisSave(newMesh, "pictures/" + name + "PC" + str(i+1))
 
-components_faust = pca_faust.components_
-# Convert back to mesh
-newMesh = vecToMesh(list=components_faust[1,:], triangles=meshes[0].triangles)
 
-newMesh.compute_vertex_normals()
-newMesh.paint_uniform_color([1, 0.706, 0])  # Change colour so its easier to see who is who in the zoo
-#o3d.visualization.draw_geometries([newMesh])
 
-# # plot the principal components
-# def PlotResults(p,dimension):
-#     sqrt_dimension = int(np.ceil(np.sqrt(dimension)))
-#     plt.figure()
-#     for i in range(p.shape[0]):
-#         plt.subplot(sqrt_dimension, sqrt_dimension, i + 1)
-#         plt.imshow(p[i, :, :],cmap='gray')
-#         plt.title(str(i + 1))
-#         plt.axis('off')
-#     plt.savefig('pictures/PCA_components_dim' + str(dimension) + '.png')
-#     plt.show()
-#
-# PlotResults(p_analytical,dimension)
+if __name__ == '__main__':
 
-# Plot the mean shape
+    # fetch data
+    meshes = loadMeshes("meshes/")
 
-pcaMean = pca_faust.mean_
-meshMean = vecToMesh(list=pcaMean, triangles=meshes[0].triangles)
+    # create vertices dataset
+    data = meshToData(meshes)
 
-meshMean.compute_vertex_normals()
-meshMean.paint_uniform_color([1, 0.6, 0])  # Change colour so its easier to see who is who in the zoo
-#o3d.visualization.draw_geometries([meshMean])
+    # dimension to reduce
+    dimension = 100
 
-# plot the pca reconstruction for the first shape
+    # Now we have squeezed those 60000 down to 16 images of principal components
+    pca_faust = AnalyticalPCA(data, dimension)  # has dimensions (16, 20670)
 
-# Check out https://stats.stackexchange.com/questions/229092/how-to-reverse-pca-and-reconstruct-original-variables-from-several-principal-com
+    # Get the components
+    components = pca_faust.components_
+    # Get the eigen values
+    eigenvalues = pca_faust.singular_values_
+    # Get the mean
+    mean = pca_faust.mean_
+    # Get triangles
+    triangles = meshes[0].triangles
 
-# n = 100, p = 20670, k = 16
-# X(n,p), V(p,k)
-# reconstruction = PC scores x Eigen vectors transposed + Mean
-# reconstruction = X V V^T + Mean
-# dimension X and Mean : 1x784 , V dimension (16, 784)
+    # visualise and save the top 3 PCs
+    principalComponent3DVis(pca_faust, triangles, 3, "faust_PCA_")
 
-mean = pcaMean  # (784,) meaning a vector
-eigenvals = pca_faust.singular_values_
+    #visualise and save the mean mesh
+    mean3DVis(data, triangles,"faust_PCA_")
 
-X = y                     # meaning (100, 20670)
-V = pca_faust.components_.T     # (20670, 16)
-b = np.dot(X, V)          # PC Scores or shape parameters 100 x 16
+    # Get and save shape parameters
+    b = shapeParameters(data, components)
+    np.savetxt('faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
-hat_x = np.dot(b, V.T) + mean
+    # Save modes of variation
+    #modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_mov_")
 
-# first reconstruction
+    # Plot modes of variation
+    #PlotModesVaration(3,"faust_PCA_",100)
 
-newMesh = vecToMesh(list=hat_x[1,:], triangles=meshes[0].triangles)
+    # Plot a basic scatterGram
+    PlotScatterGram(b,4)
 
-newMesh.compute_vertex_normals()
-newMesh.paint_uniform_color([1, 1, 0])  # Change colour so its easier to see who is who in the zoo
-#o3d.visualization.draw_geometries([newMesh])
-
-######################################################################################################################
-# Scattergram ########################################################################################################
-######################################################################################################################
-
-# This is important to see if there are any non-linear dependencies in the data.
-
-plt.scatter(b[:,0], b[:,1], alpha=0.5, s=0.5)
-plt.title('Scattergram of shape parameters')
-plt.xlabel('b1')
-plt.ylabel('b2')
-plt.axhline(0,color = "r" )
-plt.axvline(0,color = "r")
-#unhelpful in this context Very much between the bounds
-# plt.xlim(-3*np.sqrt(eigenvals[0]),3*np.sqrt(eigenvals[0]))
-# plt.ylim(-3*np.sqrt(eigenvals[1]),3*np.sqrt(eigenvals[1]))
-plt.show()
-
-#plot scattergrams of shape parameters.
-def PlotResultsB(b,num_of_modes = dimension):
-    plt.figure()
-    fig_count = 1
-    for i in range(num_of_modes):
-        for j in range(num_of_modes):
-            plt.subplot(num_of_modes, num_of_modes, fig_count)
-            plt.scatter(b[:,i], b[:,j], alpha=0.2, s=0.5)
-            plt.axhline(0, color="r")
-            plt.axvline(0, color="r")
-            fig_count += 1
+    # plot variation explained by PCA
+    var_explained = variationExplained(eigenvalues)
+    plt.plot(var_explained)
+    plt.ylabel('explained_variance')
     plt.show()
 
-PlotResultsB(b,4)
 
-plt.plot(np.cumsum(pca_faust.explained_variance_)/ sum(pca_faust.explained_variance_))
-plt.ylabel('explained_variance')
-plt.show()
-
-
-sdFromMean = -3 * np.sqrt(eigenvals[0]) #* np.ones((1, dimension))
-x_hat = sdFromMean * V[:,0] + pcaMean
-
-newMesh = vecToMesh(list=x_hat, triangles=meshes[0].triangles)
-newMesh.compute_vertex_normals()
-newMesh.paint_uniform_color([1, 0.706, 0])  # Change colour so its easier to see who is who in the zoo
-
-vis = o3d.visualization.Visualizer()
-vis.create_window()
-ctr = vis.get_view_control()
-vis.add_geometry(newMesh)
-vis.update_geometry(newMesh)
-vis.poll_events()
-# param = o3d.io.read_pinhole_camera_parameters("camera_params.json")
-# ctr.convert_from_pinhole_camera_parameters(param)
-#param = vis.get_view_control().convert_to_pinhole_camera_parameters()
-#o3d.io.write_pinhole_camera_parameters("camera_params.json", param)
-vis.capture_screen_image("pictures/newmesh2.png")
-
+    #TODO: Not sure why it crashes with (interrupted by signal 11: SIGSEGV) after PlotModesVaration
