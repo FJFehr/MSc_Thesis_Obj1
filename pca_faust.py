@@ -52,7 +52,6 @@ def principalComponent3DVis(pca_obj, triangles, number_of_vis, name):
         meshVisSave(newMesh, "pictures/" + name + "PC" + str(i+1))
 
 
-
 if __name__ == '__main__':
 
     # fetch data
@@ -69,6 +68,7 @@ if __name__ == '__main__':
 
     # Get the components
     components = pca_faust.components_
+
     # Get the eigen values
     eigenvalues = pca_faust.singular_values_
     np.savetxt('results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')

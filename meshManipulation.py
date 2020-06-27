@@ -100,7 +100,6 @@ def meshVisSave(mesh, path):
     vis.update_geometry(mesh)
     vis.poll_events()
     vis.capture_screen_image(path + ".png")
-    vis.run()
     vis.destroy_window()
 
 def mean3DVis(data, triangles, name):
@@ -114,7 +113,7 @@ def mean3DVis(data, triangles, name):
 
     mean = data.mean(axis = 0)
     mean_mesh = vecToMesh(mean, triangles)
-    meshVisSave(mean_mesh, "pictures/" + name + "mean")\
+    meshVisSave(mean_mesh, "results/" + name + "mean")\
 
 def shapeParameters(data,components):
 
@@ -162,7 +161,7 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
             newMesh = vecToMesh(x_hat, triangles)
 
             if (min_extreme+j != 0):
-                meshVisSave(newMesh, 'pictures/' + name + "mode_" + str(i+1) + str((min_extreme+j)))
+                meshVisSave(newMesh, 'results/' + name + "mode_" + str(i+1) + str((min_extreme+j)))
 
 def PlotModesVaration(number_of_modes,name, dimension):
     '''
@@ -182,20 +181,20 @@ def PlotModesVaration(number_of_modes,name, dimension):
         for j in range(pics_per_mode):
             plt.subplot(number_of_modes, pics_per_mode, fig_count)
             if (min_extreme+j == 0):
-                img = imageio.imread('pictures/'+ name + 'mean.png')
+                img = imageio.imread('results/'+ name + 'mean.png')
             else:
-                img = imageio.imread('pictures/' + name + "mov_mode_" + str(i+1) + str((min_extreme+j)) + '.png')
+                img = imageio.imread('results/' + name + "mov_mode_" + str(i+1) + str((min_extreme+j)) + '.png')
             plt.imshow(img)
             plt.axis('off')
             plt.title(str((min_extreme+j))+'sd')
             fig_count += 1
 
-    plt.savefig('pictures/PCA_modesVariation_dim' + str(dimension) + '.png')
+    plt.savefig('results/PCA_modesVariation_dim' + str(dimension) + '.png')
     plt.show()
 
 
 #plot scattergrams of shape parameters.
-def PlotScatterGram(b,num_of_modes):
+def PlotScatterGram(b,num_of_modes,name):
     '''
     Makes a grouped scattergram
     :param b: shape parameters
@@ -211,7 +210,7 @@ def PlotScatterGram(b,num_of_modes):
             plt.axhline(0, color="r")
             plt.axvline(0, color="r")
             fig_count += 1
-    plt.show()
+    plt.savefig(name + 'scatterGrams.png')
 
 def variationExplained(singular_values):
     """
