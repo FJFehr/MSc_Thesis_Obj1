@@ -210,7 +210,7 @@ def PlotScatterGram(b,num_of_modes,name):
             plt.axhline(0, color="r")
             plt.axvline(0, color="r")
             fig_count += 1
-    plt.savefig(name + 'scatterGrams.png')
+    plt.savefig("results/"+name + 'scatterGrams.png')
 
 def variationExplained(singular_values):
     """

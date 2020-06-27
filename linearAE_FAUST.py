@@ -25,8 +25,10 @@ def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_siz
     :param learning_rate: for the adam optimiser
     :param regularization: regularisation parameter
     :param epochs: how many times the model sees the data
-    :return: The weights and biases
+    :return: The weights and biases, loss per epoch, time elapsed
     '''
+
+    start_time = time.time()
 
     input = Input(shape=(y.shape[1],))
     encoded = Dense(dimension, activation='linear',
@@ -39,8 +41,9 @@ def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_siz
 
     (w1,b1,w2,b2)=autoencoder.get_weights()
 
-    print(history.history.keys())
-    return (w1,b1,w2,b2,history.history['loss'])
+    end_time = time.time() - start_time
+
+    return (w1,b1,w2,b2,history.history['loss'],end_time)
 
 def train_AE_save(data,
                   dimension,
@@ -50,7 +53,8 @@ def train_AE_save(data,
                   batch_size,
                   name):
     '''
-    This function takes in all the parameters for a linear AE and saves decoder weights
+    This function takes in all the parameters for a linear AE and saves
+     decoder weights, loss per epoch and the time taken to train in seconds
 
     :param data: data
     :param dimension: bottleneck hidden layer dimension
@@ -63,7 +67,7 @@ def train_AE_save(data,
     '''
 
     # Run linear AE and return and save the weights
-    (_, _, w2, _,loss) = LinearAE(y= data,
+    (_, _, w2, _,loss,time) = LinearAE(y= data,
                              dimension=dimension,
                              epochs=epochs,
                              learning_rate=learning_rate,
@@ -79,6 +83,15 @@ def train_AE_save(data,
                '.csv',
                loss, delimiter=',')
 
+    np.savetxt('results/' + name +
+               '_AE_time_dim_' + str(dimension) +
+               "_reg_" + str(regularization) +
+               '_epoch_' + str(epochs) +
+               '_lr_' + str(learning_rate) +
+               '_bs_' + str(batch_size) +
+               '.csv',
+               time, delimiter=',')
+
 
     np.savetxt('results/' + name +
                '_AE_w2_dim_'+str(dimension) +
@@ -93,11 +106,11 @@ def training_function(data, param_grid):
     '''
 
     Here is an example parameter grid
-    param_grid = {'dimension': [100],  # maybe try 20
+    param_grid = {'dimension': [100],
                'epochs': [10000],
-               'learning_rate': [1e-4],  # maybe 1e-6
+               'learning_rate': [1e-4],
                 'batch_size': [5],
-                'regularization': [1e-4]}  # maybe 1e-2
+                'regularization': [1e-4]}
 
     :param data: Your data
     :param param_grid: a dict of your parameters to run.
@@ -187,7 +200,7 @@ if __name__ == '__main__':
     # This set of parameters was the best and took 2.5hrs to train
 
     param_grid = {'dimension': [100],  # maybe try 20
-                  'epochs': [25], # maybe less?
+                  'epochs': [100000], # maybe less?
                   'learning_rate': [1e-4],  # maybe 1e-6
                   'batch_size': [25], # maybe 5
                   'regularization': [1e-4]}  # maybe 1e-2
@@ -201,5 +214,5 @@ if __name__ == '__main__':
     paths = glob2.glob(direc + "*faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25*")
     trainingAEViz(data, paths, triangles)
 
-    #results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25.csv # 25 is quicker
-    #results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_5.csv
+    # Appears to be the best run
+    #results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25.csv #

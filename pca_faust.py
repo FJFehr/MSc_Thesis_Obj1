@@ -60,6 +60,9 @@ if __name__ == '__main__':
     # create vertices dataset
     data = meshToData(meshes)
 
+    # Get triangles
+    triangles = meshes[0].triangles
+
     # dimension to reduce
     dimension = 100
 
@@ -74,11 +77,10 @@ if __name__ == '__main__':
     np.savetxt('results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
     # Get the mean
     mean = pca_faust.mean_
-    # Get triangles
-    triangles = meshes[0].triangles
+
 
     # visualise and save the top 3 PCs
-    principalComponent3DVis(pca_faust, triangles, 3, "faust_PCA_")
+    #principalComponent3DVis(pca_faust, triangles, 3, "faust_PCA_")
 
     #visualise and save the mean mesh
     mean3DVis(data, triangles,"faust_PCA_")
@@ -88,19 +90,18 @@ if __name__ == '__main__':
     np.savetxt('results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
-    #modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_mov_")
+    modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_")
 
     # Plot modes of variation
     #PlotModesVaration(3,"faust_PCA_",100)
 
     # Plot a basic scatterGram
-    PlotScatterGram(b,4)
+    PlotScatterGram(b,3,"faust_PCA_")
 
     # plot variation explained by PCA
-    var_explained = variationExplained(eigenvalues)
-    plt.plot(var_explained)
-    plt.ylabel('explained_variance')
-    plt.show()
-
+    # var_explained = variationExplained(eigenvalues)
+    # plt.plot(var_explained)
+    # plt.ylabel('explained_variance')
+    # plt.show()
 
     #TODO: Not sure why it crashes with (interrupted by signal 11: SIGSEGV) after PlotModesVaration
