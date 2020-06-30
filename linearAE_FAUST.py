@@ -7,7 +7,7 @@ import numpy as np
 import time
 from meshManipulation import meshToData,\
     loadMeshes,PlotModesVaration,\
-    modesOfVariationVis, \
+    modesOfVariationVis, mean3DVis, \
     PlotScatterGram,shapeParameters
 from keras.layers import Input, Dense
 from keras import regularizers, models, optimizers
@@ -41,9 +41,11 @@ def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_siz
 
     (w1,b1,w2,b2)=autoencoder.get_weights()
 
-    end_time = time.time() - start_time
+    time_list = []
+    end_time = (time.time() - start_time)
+    time_list.append(end_time)
 
-    return (w1,b1,w2,b2,history.history['loss'],end_time)
+    return (w1,b1,w2,b2,history.history['loss'],time_list)
 
 def train_AE_save(data,
                   dimension,
@@ -67,7 +69,7 @@ def train_AE_save(data,
     '''
 
     # Run linear AE and return and save the weights
-    (_, _, w2, _,loss,time) = LinearAE(y= data,
+    (_, _, w2, _,loss,end_time) = LinearAE(y= data,
                              dimension=dimension,
                              epochs=epochs,
                              learning_rate=learning_rate,
@@ -90,7 +92,7 @@ def train_AE_save(data,
                '_lr_' + str(learning_rate) +
                '_bs_' + str(batch_size) +
                '.csv',
-               time, delimiter=',')
+               end_time, delimiter=',')
 
 
     np.savetxt('results/' + name +
@@ -140,9 +142,9 @@ def training_function(data, param_grid):
                       **params[i])
 
         print("completed " + str(i/len(params)))
-        print("--- %s seconds ---" % (time.time() - start_time))
+        print("--- %s seconds ---" % +(time.time() - start_time))
 
-def trainingAEViz(data, paths,triangles):
+def trainingAEViz(data, paths,triangles,name,col):
 
     '''
     Once training has been run you will want to visualise the modes of variation and scattergrams
@@ -150,11 +152,14 @@ def trainingAEViz(data, paths,triangles):
     :param data: your data
     :param paths: The paths to your training results
     :param triangles: The triangles for your mesh visualisations
+    :param name:
+    :param: col:
     :return:
     '''
 
     #Calculate the mean
     mean = data.mean(axis=0)
+    mean3DVis(data, triangles,name,col)
 
     for path in paths:
 
@@ -169,19 +174,22 @@ def trainingAEViz(data, paths,triangles):
 
         # turn to shape parameters
         b = shapeParameters(data, components)
-        np.savetxt('results/faust_AE_ShapeParamaters_b.csv', b, delimiter=',')
+        np.savetxt('results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
 
         #From path get the new name
-        name = str(path[20:-4])
+        #name = str(path[20:-4])
 
         # Load eigenvalues from PCA for bounds
         pca_eigen_values = np.loadtxt('results/faust_PCA_Eigen.csv', delimiter=',')
 
         # Save the modes of variations pictures
-        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name)
+        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col)
+
+        # Combine them
+        PlotModesVaration(3,name,100,)
 
         # Plot
-        PlotScatterGram(b, 3, "results/faust_AE_")
+        #PlotScatterGram(b, 3, "results/faust_AE_")
 
 
 if __name__ == '__main__':
@@ -195,12 +203,14 @@ if __name__ == '__main__':
     # Get triangles
     triangles = meshes[0].triangles
 
+    colour = [141,182,205]
+
     #### TRAINING ####
 
     # This set of parameters was the best and took 2.5hrs to train
 
     param_grid = {'dimension': [100],  # maybe try 20
-                  'epochs': [100000], # maybe less?
+                  'epochs': [10000], # maybe less?
                   'learning_rate': [1e-4],  # maybe 1e-6
                   'batch_size': [25], # maybe 5
                   'regularization': [1e-4]}  # maybe 1e-2
@@ -212,7 +222,7 @@ if __name__ == '__main__':
 
     direc = 'results/'
     paths = glob2.glob(direc + "*faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25*")
-    trainingAEViz(data, paths, triangles)
+    trainingAEViz(data, paths, triangles,"faust_AE_",colour)
 
     # Appears to be the best run
     #results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25.csv #

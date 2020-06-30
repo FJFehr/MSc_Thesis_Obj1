@@ -66,6 +66,8 @@ if __name__ == '__main__':
     # dimension to reduce
     dimension = 100
 
+    colour = [180,180,180]
+
     # Now we have squeezed those 60000 down to 16 images of principal components
     pca_faust = AnalyticalPCA(data, dimension)  # has dimensions (16, 20670)
 
@@ -83,17 +85,17 @@ if __name__ == '__main__':
     #principalComponent3DVis(pca_faust, triangles, 3, "faust_PCA_")
 
     #visualise and save the mean mesh
-    mean3DVis(data, triangles,"faust_PCA_")
+    mean3DVis(data, triangles,"faust_PCA_", col=colour)
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
     np.savetxt('results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
-    modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_")
+    modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_", col= colour)
 
     # Plot modes of variation
-    #PlotModesVaration(3,"faust_PCA_",100)
+    PlotModesVaration(3,"faust_PCA_",100)
 
     # Plot a basic scatterGram
     PlotScatterGram(b,3,"faust_PCA_")

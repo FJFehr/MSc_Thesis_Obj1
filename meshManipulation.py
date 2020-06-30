@@ -4,9 +4,12 @@
 
 import open3d as o3d
 import numpy as np
+import matplotlib
+matplotlib.rcParams['text.usetex'] = True
 import matplotlib.pyplot as plt
 import imageio
 import glob2
+from PIL import Image, ImageChops
 
 # Some useful class types to keep in mind
 # meshes[0]           is open3d.open3d_pybind.geometry.TriangleMesh
@@ -80,19 +83,23 @@ def meshToData(meshes):
     return data
 
 
-def meshVisSave(mesh, path):
+def meshVisSave(mesh, path, col):
 
     '''
     # this function saves a mesh visualisation as png
     :param mesh: 3D mesh obj from open3D
     :param path: path and name to where you would like it saved
+    :param col: The colour in a list [255,255,255]
     :return: saves mesh
     '''
     # compute normals to visualise
     mesh.compute_vertex_normals()
 
-    # paint
-    # newMesh.paint_uniform_color([1, 0.706, 0])
+    # paint [1, 0.706, 0]
+    col = [i / 255.0 for i in col]
+
+    mesh.paint_uniform_color(col)
+
 
     vis = o3d.visualization.Visualizer()
     vis.create_window()
@@ -102,18 +109,19 @@ def meshVisSave(mesh, path):
     vis.capture_screen_image(path + ".png")
     vis.destroy_window()
 
-def mean3DVis(data, triangles, name):
+def mean3DVis(data, triangles, name, col):
     '''
     # Function takes in meshes and visualises the mean
     :param data: dataset rows are observations and columns are vertices (vector format)
     :param triangles: the connections for visualising meshes
     :param name: name to be saved
+    :param col: The colour in a list [255,255,255]
     :return: nothing
     '''
 
     mean = data.mean(axis = 0)
     mean_mesh = vecToMesh(mean, triangles)
-    meshVisSave(mean_mesh, "results/" + name + "mean")\
+    meshVisSave(mean_mesh, "results/" + name + "mean", col)\
 
 def shapeParameters(data,components):
 
@@ -139,7 +147,7 @@ def shapeParameters(data,components):
 
     return b
 
-def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name):
+def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col):
     '''
 
     :param mean: The mean shape
@@ -148,6 +156,7 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
     :param number_of_modes: how many modes do you want to visualise?
     :param triangles: The connection triangles for the mesh
     :param name: how will they be saved
+    :param col: The colour in a list [255,255,255]
     :return: saves meshes
     '''
 
@@ -161,7 +170,17 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
             newMesh = vecToMesh(x_hat, triangles)
 
             if (min_extreme+j != 0):
-                meshVisSave(newMesh, 'results/' + name + "mode_" + str(i+1) + str((min_extreme+j)))
+                meshVisSave(newMesh, 'results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),col)
+
+
+def trim(im):
+    bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
+    diff = ImageChops.difference(im, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -100)
+    bbox = diff.getbbox()
+    if bbox:
+        return im.crop(bbox)
+
 
 def PlotModesVaration(number_of_modes,name, dimension):
     '''
@@ -177,20 +196,26 @@ def PlotModesVaration(number_of_modes,name, dimension):
 
     fig_count = 1
     plt.figure()
+    plt.tight_layout(pad=3)
     for i in range(number_of_modes):
         for j in range(pics_per_mode):
             plt.subplot(number_of_modes, pics_per_mode, fig_count)
             if (min_extreme+j == 0):
-                img = imageio.imread('results/'+ name + 'mean.png')
+                img = Image.open('results/'+ name + 'mean.png')
+                img = trim(img)
             else:
-                img = imageio.imread('results/' + name + "mov_mode_" + str(i+1) + str((min_extreme+j)) + '.png')
+                img = Image.open('results/' + name + "mode_" + str(i+1) + str((min_extreme+j)) + '.png')
+                img = trim(img)
             plt.imshow(img)
             plt.axis('off')
-            plt.title(str((min_extreme+j))+'sd')
+            if (min_extreme + j != 0):
+                plt.title(f'${str((min_extreme+j))} \sqrt\lambda_{i+1}$', fontsize=10)
+            else:
+                plt.title("0", fontsize=10)
             fig_count += 1
 
-    plt.savefig('results/PCA_modesVariation_dim' + str(dimension) + '.png')
-    plt.show()
+    plt.savefig('results/'+name+'modesVariation_dim' + str(dimension) + '.pdf',dpi=600)
+    #plt.show()
 
 
 #plot scattergrams of shape parameters.
@@ -231,3 +256,4 @@ def variationExplained(singular_values):
 # # ctr.convert_from_pinhole_camera_parameters(param)
 # #param = vis.get_view_control().convert_to_pinhole_camera_parameters()
 # #o3d.io.write_pinhole_camera_parameters("camera_params.json", param)
+
