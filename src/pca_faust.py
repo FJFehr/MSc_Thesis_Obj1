@@ -44,13 +44,12 @@ def variationExplainedPlot(singular_values,name):
     cum_variance_explained = np.cumsum(variance_explained)
 
     plt.plot(cum_variance_explained)
-    plt.ylabel('explained_variance')
-    plt.savefig("results/" + name + 'VariationExplained.png')
+    plt.savefig("../results/" + name + 'VariationExplained.png')
 
 def main():
 
     # fetch data
-    meshes = loadMeshes("meshes/")
+    meshes = loadMeshes("../meshes/")
 
     # create vertices dataset
     data = meshToData(meshes)
@@ -72,7 +71,7 @@ def main():
 
     # Get the eigen values
     eigenvalues = pca_faust.singular_values_
-    np.savetxt('results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
+    np.savetxt('../results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
     # Get the mean
     mean = pca_faust.mean_
@@ -82,7 +81,7 @@ def main():
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
-    np.savetxt('results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
+    np.savetxt('../results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
     modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "faust_PCA_", col=colour)

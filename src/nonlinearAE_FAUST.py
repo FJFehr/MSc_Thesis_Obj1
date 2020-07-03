@@ -9,7 +9,7 @@ import glob2
 def main():
 
     # fetch data
-    meshes = loadMeshes("meshes/")
+    meshes = loadMeshes("../meshes/")
 
     # create vertices dataset
     data = meshToData(meshes)
@@ -44,7 +44,7 @@ def main():
 
     # Set the directory and the wild cards to select all runs of choice
 
-    direc = 'results/'
+    direc = '../results/'
     paths = glob2.glob(direc + "*faust_nonlinear_tanh_AE_w2*")
     trainingAEViz(data, paths, triangles, "faust_nonlinear_AE_", colour)
 

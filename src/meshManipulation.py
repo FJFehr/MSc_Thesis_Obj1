@@ -122,7 +122,7 @@ def mean3DVis(data, triangles, name, col):
 
     mean = data.mean(axis = 0)
     mean_mesh = vecToMesh(mean, triangles)
-    meshVisSave(mean_mesh, "results/" + name + "mean", col)\
+    meshVisSave(mean_mesh, "../results/" + name + "mean", col)\
 
 
 def shapeParameters(data,components):
@@ -173,7 +173,7 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
             newMesh = vecToMesh(x_hat, triangles)
 
             if (min_extreme+j != 0):
-                meshVisSave(newMesh, 'results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),col)
+                meshVisSave(newMesh, '../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),col)
 
 
 def trim(im):
@@ -211,10 +211,10 @@ def PlotModesVaration(number_of_modes, name):
         for j in range(pics_per_mode):
             plt.subplot(number_of_modes, pics_per_mode, fig_count)
             if (min_extreme+j == 0):
-                img = Image.open('results/'+ name + 'mean.png')
+                img = Image.open('../results/'+ name + 'mean.png')
                 img = trim(img)
             else:
-                img = Image.open('results/' + name + "mode_" + str(i+1) + str((min_extreme+j)) + '.png')
+                img = Image.open('../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)) + '.png')
                 img = trim(img)
             plt.imshow(img)
             plt.axis('off')
@@ -224,7 +224,7 @@ def PlotModesVaration(number_of_modes, name):
                 plt.title("0", fontsize=10)
             fig_count += 1
 
-    plt.savefig('results/'+name+'modesVariation' + '.pdf', dpi=600)
+    plt.savefig('../results/'+name+'modesVariation' + '.pdf', dpi=600)
     #plt.show()
 
 
@@ -245,7 +245,7 @@ def PlotScatterGram(b, num_of_modes, name):
             plt.axhline(0, color="r")
             plt.axvline(0, color="r")
             fig_count += 1
-    plt.savefig("results/"+name + 'scatterGrams.png')
+    plt.savefig("../results/"+name + 'scatterGrams.png')
 
 
 def variationExplained(singular_values):

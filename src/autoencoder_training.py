@@ -81,7 +81,7 @@ def train_AE_save(data,
                              activation=activation)
 
     # Save loss
-    np.savetxt('results/' + name +
+    np.savetxt('../results/' + name +
                '_AE_loss_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -91,7 +91,7 @@ def train_AE_save(data,
                loss, delimiter=',')
 
     # Save time
-    np.savetxt('results/' + name +
+    np.savetxt('../results/' + name +
                '_AE_time_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -101,7 +101,7 @@ def train_AE_save(data,
                end_time, delimiter=',')
 
     # Save decider weights
-    np.savetxt('results/' + name +
+    np.savetxt('../results/' + name +
                '_AE_w2_dim_'+str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -183,10 +183,10 @@ def trainingAEViz(data, paths,triangles,name,col):
 
         # turn to shape parameters
         b = shapeParameters(data, components)
-        np.savetxt('results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
+        np.savetxt('../results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
 
         # Load eigenvalues from PCA for bounds
-        pca_eigen_values = np.loadtxt('results/faust_PCA_Eigen.csv', delimiter=',')
+        pca_eigen_values = np.loadtxt('../results/faust_PCA_Eigen.csv', delimiter=',')
 
         # Save the modes of variations pictures
         modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col)
