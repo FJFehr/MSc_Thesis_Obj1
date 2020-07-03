@@ -33,18 +33,23 @@ def AnalyticalPCA(y, dimension):
 
 def variationExplainedPlot(singular_values,name):
     """
-    Creates a cummulative variation explained for PCA. This is easy to plot
+    Creates a cummulative variation explained for plot for PCA.
 
     :param singular_values: for PCA
     :return: cum_variance_explained: cummulative variation explained
     """
+
     # calculate cumulative variance
     total_val = sum(singular_values)
     variance_explained = singular_values/total_val
     cum_variance_explained = np.cumsum(variance_explained)
 
+    plt.figure()
     plt.plot(cum_variance_explained)
+    plt.ylabel("Variation Explained")
+    plt.xlabel("Principal Components")
     plt.savefig("../results/" + name + 'VariationExplained.png')
+
 
 def main():
 

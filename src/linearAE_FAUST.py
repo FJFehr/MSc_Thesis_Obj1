@@ -48,7 +48,7 @@ def main():
     # Appears to be the best run
 
     direc = '../results/'
-    paths = glob2.glob(direc + "*faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25*")
+    paths = glob2.glob(direc + "*faustlinear_AE_w2_*")
     trainingAEViz(data, paths, triangles, "faust_AE_", colour)
 
 if __name__ == '__main__':

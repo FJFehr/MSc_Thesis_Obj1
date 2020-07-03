@@ -246,17 +246,3 @@ def PlotScatterGram(b, num_of_modes, name):
             plt.axvline(0, color="r")
             fig_count += 1
     plt.savefig("../results/"+name + 'scatterGrams.png')
-
-
-def variationExplained(singular_values):
-    """
-    Creates a cummulative variation explained for PCA. This is easy to plot
-
-    :param singular_values: for PCA
-    :return: cum_variance_explained: cummulative variation explained
-    """
-    # calculate cumulative variance
-    total_val = sum(singular_values)
-    variance_explained = singular_values/total_val
-    cum_variance_explained = np.cumsum(variance_explained)
-    return cum_variance_explained
