@@ -1,22 +1,18 @@
-#
-#
-#
-
+# A collection of functions for training, visualising and saving autoencoders for 3D mesh models
+# Fabio Fehr
+# 1 July 2020
 
 import numpy as np
 import time
-from meshManipulation import meshToData,\
-    loadMeshes,PlotModesVaration,\
+from src.meshManipulation import PlotModesVaration,\
     modesOfVariationVis, mean3DVis, \
     PlotScatterGram,shapeParameters
 from keras.layers import Input, Dense
 from keras import regularizers, models, optimizers
 from sklearn.model_selection import ParameterGrid
-import glob2
-
 
 # Linear Autoencoder
-def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_size=4, epochs=3):
+def AE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_size=4, epochs=3, activation = 'linear'):
 
     '''
     This creates the basic frameowrk for a single layer linear AE
@@ -25,6 +21,7 @@ def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_siz
     :param learning_rate: for the adam optimiser
     :param regularization: regularisation parameter
     :param epochs: how many times the model sees the data
+    :param activation: This is the decoder activation function linear or sigmoid
     :return: The weights and biases, loss per epoch, time elapsed
     '''
 
@@ -33,7 +30,7 @@ def LinearAE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_siz
     input = Input(shape=(y.shape[1],))
     encoded = Dense(dimension, activation='linear',
                     kernel_regularizer=regularizers.l2(regularization))(input)
-    decoded = Dense(y.shape[1], activation='linear',
+    decoded = Dense(y.shape[1], activation=activation,
                     kernel_regularizer=regularizers.l2(regularization))(encoded)
     autoencoder = models.Model(input, decoded)
     autoencoder.compile(optimizer=optimizers.adam(lr=learning_rate), loss='mean_squared_error')
@@ -53,6 +50,7 @@ def train_AE_save(data,
                   learning_rate,
                   regularization,
                   batch_size,
+                  activation,
                   name):
     '''
     This function takes in all the parameters for a linear AE and saves
@@ -63,18 +61,21 @@ def train_AE_save(data,
     :param learning_rate: for the adam optimiser
     :param regularization: regularisation parameter
     :param epochs: how many times the model sees the data
-    :return: The weights and biases
+    :param activation: The activation type linear or sigmoid
     :param name: saving name
-    :return:
+    :return: The weights and biases
     '''
 
+    name = name + str(activation)
+
     # Run linear AE and return and save the weights
-    (_, _, w2, _,loss,end_time) = LinearAE(y= data,
+    (_, _, w2, _,loss,end_time) = AE(y= data,
                              dimension=dimension,
                              epochs=epochs,
                              learning_rate=learning_rate,
                              batch_size =batch_size,
-                             regularization=regularization)
+                             regularization=regularization,
+                             activation=activation)
 
     np.savetxt('results/' + name +
                '_AE_loss_dim_' + str(dimension) +
@@ -104,7 +105,7 @@ def train_AE_save(data,
                '.csv',
                w2, delimiter=',')
 
-def training_function(data, param_grid):
+def training_function(data, param_grid, name = "faust"):
     '''
 
     Here is an example parameter grid
@@ -112,7 +113,8 @@ def training_function(data, param_grid):
                'epochs': [10000],
                'learning_rate': [1e-4],
                 'batch_size': [5],
-                'regularization': [1e-4]}
+                'regularization': [1e-4],
+                'activation': ['linear']}
 
     :param data: Your data
     :param param_grid: a dict of your parameters to run.
@@ -138,7 +140,7 @@ def training_function(data, param_grid):
 
         # train and save the AE weights
         train_AE_save(data=data,
-                      name="faust",
+                      name=name,
                       **params[i])
 
         print("completed " + str(i/len(params)))
@@ -186,43 +188,7 @@ def trainingAEViz(data, paths,triangles,name,col):
         modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col)
 
         # Combine them
-        PlotModesVaration(3,name,100,)
+        PlotModesVaration(3,name,100)
 
         # Plot
-        #PlotScatterGram(b, 3, "results/faust_AE_")
-
-
-if __name__ == '__main__':
-
-    # fetch data
-    meshes = loadMeshes("meshes/")
-
-    # create vertices dataset
-    data = meshToData(meshes)
-
-    # Get triangles
-    triangles = meshes[0].triangles
-
-    colour = [141,182,205]
-
-    #### TRAINING ####
-
-    # This set of parameters was the best and took 2.5hrs to train
-
-    param_grid = {'dimension': [100],  # maybe try 20
-                  'epochs': [10000], # maybe less?
-                  'learning_rate': [1e-4],  # maybe 1e-6
-                  'batch_size': [25], # maybe 5
-                  'regularization': [1e-4]}  # maybe 1e-2
-    training_function(data, param_grid)
-
-    #### VISUALISING ####
-
-    # Set the directory and the wild cards to select all runs of choice
-
-    direc = 'results/'
-    paths = glob2.glob(direc + "*faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25*")
-    trainingAEViz(data, paths, triangles,"faust_AE_",colour)
-
-    # Appears to be the best run
-    #results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25.csv #
+        PlotScatterGram(b, 3, name)

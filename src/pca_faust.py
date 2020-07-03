@@ -2,14 +2,11 @@
 # Fabio Fehr
 # 22 June 2020
 
-import open3d as o3d
 import numpy as np
-import matplotlib.pyplot as plt
-from meshManipulation import vecToMesh , \
-    meshToVec, meshToData,mean3DVis,\
+from src.meshManipulation import vecToMesh , \
+    meshToData,mean3DVis,\
     loadMeshes,PlotModesVaration,\
-    modesOfVariationVis,variationExplained,\
-    PlotScatterGram,shapeParameters,meshVisSave
+    modesOfVariationVis, PlotScatterGram,shapeParameters,meshVisSave
 
 
 from sklearn.decomposition import PCA
