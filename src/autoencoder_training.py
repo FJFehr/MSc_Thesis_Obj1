@@ -11,11 +11,11 @@ from keras.layers import Input, Dense
 from keras import regularizers, models, optimizers
 from sklearn.model_selection import ParameterGrid
 
-# Linear Autoencoder
-def AE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_size=4, epochs=3, activation = 'linear'):
+# Autoencoder
+def AE(y, dimension=100, learning_rate = 1e-4, regularization = 1e-4,batch_size=25, epochs=10, activation = 'linear'):
 
     '''
-    This creates the basic frameowrk for a single layer linear AE
+    This creates the basic frameowrk for a single layer AE to be used for
     :param y: data
     :param dimension: bottleneck hidden layer dimension
     :param learning_rate: for the adam optimiser
@@ -38,6 +38,7 @@ def AE(y, dimension, learning_rate = 1e-4, regularization = 5e-4,batch_size=4, e
 
     (w1,b1,w2,b2)=autoencoder.get_weights()
 
+    # record time
     time_list = []
     end_time = (time.time() - start_time)
     time_list.append(end_time)
@@ -53,7 +54,7 @@ def train_AE_save(data,
                   activation,
                   name):
     '''
-    This function takes in all the parameters for a linear AE and saves
+    This function takes in all the parameters for a AE and saves
      decoder weights, loss per epoch and the time taken to train in seconds
 
     :param data: data
@@ -66,6 +67,7 @@ def train_AE_save(data,
     :return: The weights and biases
     '''
 
+    #Edit name for saving
     name = name + str(activation)
 
     # Run linear AE and return and save the weights
@@ -77,7 +79,8 @@ def train_AE_save(data,
                              regularization=regularization,
                              activation=activation)
 
-    np.savetxt('results/' + name +
+    # Save loss
+    np.savetxt('../results/' + name +
                '_AE_loss_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -86,7 +89,8 @@ def train_AE_save(data,
                '.csv',
                loss, delimiter=',')
 
-    np.savetxt('results/' + name +
+    # Save time
+    np.savetxt('../results/' + name +
                '_AE_time_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -95,8 +99,8 @@ def train_AE_save(data,
                '.csv',
                end_time, delimiter=',')
 
-
-    np.savetxt('results/' + name +
+    # Save decider weights
+    np.savetxt('../results/' + name +
                '_AE_w2_dim_'+str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -105,8 +109,10 @@ def train_AE_save(data,
                '.csv',
                w2, delimiter=',')
 
+
 def training_function(data, param_grid, name = "faust"):
     '''
+    This function takes in data, a name and a parameter grid as seen below
 
     Here is an example parameter grid
     param_grid = {'dimension': [100],
@@ -116,9 +122,9 @@ def training_function(data, param_grid, name = "faust"):
                 'regularization': [1e-4],
                 'activation': ['linear']}
 
-    :param data: Your data
+    :param data: Your 3D mesh data
     :param param_grid: a dict of your parameters to run.
-    :return:
+    :return: saves it
     '''
 
     # param_grid = {'dimension': [100],  # maybe try 20
@@ -149,37 +155,34 @@ def training_function(data, param_grid, name = "faust"):
 def trainingAEViz(data, paths,triangles,name,col):
 
     '''
-    Once training has been run you will want to visualise the modes of variation and scattergrams
+    Once training has been run you will want to visualise the results
 
     :param data: your data
     :param paths: The paths to your training results
     :param triangles: The triangles for your mesh visualisations
-    :param name:
-    :param: col:
-    :return:
+    :param name: Name you will use to save.
+    :param: col: [255,255,255] colour code
+    :return: saves plots
     '''
 
     #Calculate the mean
     mean = data.mean(axis=0)
-    mean3DVis(data, triangles,name,col)
+    mean3DVis(data, triangles, name, col)
 
     for path in paths:
 
         #load the path to training output
-        w2= np.loadtxt(str(path), delimiter=',')
+        w2 = np.loadtxt(str(path), delimiter=',')
 
         # Now these are equivalent to the principal components. svd on decoder weights
-        (p_linear_ae, singular_values, _) = np.linalg.svd(w2.T, full_matrices=False)
+        (u_vectors, singular_values, _) = np.linalg.svd(w2.T, full_matrices=False)
 
         # Get the components
-        components = p_linear_ae.T # 100 x 20670
+        components = u_vectors.T
 
         # turn to shape parameters
         b = shapeParameters(data, components)
         np.savetxt('results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
-
-        #From path get the new name
-        #name = str(path[20:-4])
 
         # Load eigenvalues from PCA for bounds
         pca_eigen_values = np.loadtxt('results/faust_PCA_Eigen.csv', delimiter=',')
@@ -188,7 +191,7 @@ def trainingAEViz(data, paths,triangles,name,col):
         modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col)
 
         # Combine them
-        PlotModesVaration(3,name,100)
+        PlotModesVaration(3, name)
 
-        # Plot
+        # Plot basic scattergram
         PlotScatterGram(b, 3, name)

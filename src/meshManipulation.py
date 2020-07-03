@@ -7,7 +7,6 @@ import numpy as np
 import matplotlib
 matplotlib.rcParams['text.usetex'] = True
 import matplotlib.pyplot as plt
-import imageio
 import glob2
 from PIL import Image, ImageChops
 
@@ -15,19 +14,19 @@ from PIL import Image, ImageChops
 # meshes[0]           is open3d.open3d_pybind.geometry.TriangleMesh
 # meshes[0].vertices  are open3d.open3d_pybind.utility.Vector3dVector
 
+
 def meshToVec(mesh):
     """
+    This function takes in a mesh and returns a list of vertices
+    This is important as the AE structure requires a vector and not a mesh
 
     :param mesh: open3d.open3d_pybind.geometry.TriangleMesh
     :return: a list of vertices
     """
 
-    # This function takes in a mesh and returns a list of vertices
-    # This is important as the AE structure requires a a vector not mesh
-
     output = np.concatenate(np.asarray(mesh.vertices)).ravel().tolist()
-
     return output
+
 
 def vecToMesh(list, triangles, N=3):
     """
@@ -50,22 +49,24 @@ def vecToMesh(list, triangles, N=3):
     newMesh = o3d.geometry.TriangleMesh(newVerticies, triangles)
     return newMesh
 
+
 def loadMeshes(direc= "meshes/"):
     '''
     Provided a directory of .ply meshes. This function reads them in and returns a list of meshes
+
     :param direc: directory of meshes
     :return: List of meshes
     '''
     paths = glob2.glob(direc + "*.ply")
     paths = sorted(paths) # makes sure its in the correct order
     meshes = [o3d.io.read_triangle_mesh(path) for path in paths]
-
     return meshes
 
 
 def meshToData(meshes):
     '''
     This function turns a list of meshes into a np array of mesh vertices
+
     :param meshes: list of meshes
     :return: data: individual meshes on the rows, vertices on the columns
     '''
@@ -84,9 +85,9 @@ def meshToData(meshes):
 
 
 def meshVisSave(mesh, path, col):
-
     '''
-    # this function saves a mesh visualisation as png
+    This function saves a mesh visualisation as png
+
     :param mesh: 3D mesh obj from open3D
     :param path: path and name to where you would like it saved
     :param col: The colour in a list [255,255,255]
@@ -95,12 +96,10 @@ def meshVisSave(mesh, path, col):
     # compute normals to visualise
     mesh.compute_vertex_normals()
 
-    # paint [1, 0.706, 0]
+    # convert the 255 code to be between 0-1 of Open3d
     col = [i / 255.0 for i in col]
 
     mesh.paint_uniform_color(col)
-
-
     vis = o3d.visualization.Visualizer()
     vis.create_window()
     vis.add_geometry(mesh)
@@ -109,9 +108,11 @@ def meshVisSave(mesh, path, col):
     vis.capture_screen_image(path + ".png")
     vis.destroy_window()
 
+
 def mean3DVis(data, triangles, name, col):
     '''
-    # Function takes in meshes and visualises the mean
+    Function takes in data and visualises the mean
+
     :param data: dataset rows are observations and columns are vertices (vector format)
     :param triangles: the connections for visualising meshes
     :param name: name to be saved
@@ -123,11 +124,11 @@ def mean3DVis(data, triangles, name, col):
     mean_mesh = vecToMesh(mean, triangles)
     meshVisSave(mean_mesh, "results/" + name + "mean", col)\
 
+
 def shapeParameters(data,components):
 
     '''
     This function takes in data and components from PCA or SVD and returns the shape paramters
-    Check out
     https://stats.stackexchange.com/questions/229092/how-to-reverse-pca-and-reconstruct-original-variables-from-several-principal-com
 
     dimensions
@@ -147,8 +148,10 @@ def shapeParameters(data,components):
 
     return b
 
+
 def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col):
     '''
+    This function saves the individual modes of variation once they have been calculated
 
     :param mean: The mean shape
     :param components: the PC (PCA) or singular vectors (SVD)
@@ -174,6 +177,13 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
 
 
 def trim(im):
+
+    '''
+    This function trims the white space of an image
+
+    :param im: image
+    :return: trimmed image
+    '''
     bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
     diff = ImageChops.difference(im, bg)
     diff = ImageChops.add(diff, diff, 2.0, -100)
@@ -182,12 +192,12 @@ def trim(im):
         return im.crop(bbox)
 
 
-def PlotModesVaration(number_of_modes,name, dimension):
+def PlotModesVaration(number_of_modes, name):
     '''
+    This function combines the modes of variation and plots them together and saves
 
     :param number_of_modes: how many modes do you want to plot
     :param name: the name of the saved file of pictures
-    :param dimension: Just for saving purposes
     :return:
     '''
 
@@ -214,14 +224,14 @@ def PlotModesVaration(number_of_modes,name, dimension):
                 plt.title("0", fontsize=10)
             fig_count += 1
 
-    plt.savefig('results/'+name+'modesVariation_dim' + str(dimension) + '.pdf',dpi=600)
+    plt.savefig('results/'+name+'modesVariation_dim' + '.pdf', dpi=600)
     #plt.show()
 
 
-#plot scattergrams of shape parameters.
-def PlotScatterGram(b,num_of_modes,name):
+def PlotScatterGram(b, num_of_modes, name):
     '''
-    Makes a grouped scattergram
+    Makes a grouped scattergram of shape parameters
+
     :param b: shape parameters
     :param num_of_modes: how many to display
     :return:
@@ -237,23 +247,16 @@ def PlotScatterGram(b,num_of_modes,name):
             fig_count += 1
     plt.savefig("results/"+name + 'scatterGrams.png')
 
+
 def variationExplained(singular_values):
     """
+    Creates a cummulative variation explained for PCA. This is easy to plot
 
-    :param singular_values:
-    :return:
+    :param singular_values: for PCA
+    :return: cum_variance_explained: cummulative variation explained
     """
     # calculate cumulative variance
     total_val = sum(singular_values)
     variance_explained = singular_values/total_val
     cum_variance_explained = np.cumsum(variance_explained)
     return cum_variance_explained
-
-
-# TODO: Figure out how to zoom and crop FAUST images
-# ctr = vis.get_view_control()
-# # param = o3d.io.read_pinhole_camera_parameters("camera_params.json")
-# # ctr.convert_from_pinhole_camera_parameters(param)
-# #param = vis.get_view_control().convert_to_pinhole_camera_parameters()
-# #o3d.io.write_pinhole_camera_parameters("camera_params.json", param)
-
