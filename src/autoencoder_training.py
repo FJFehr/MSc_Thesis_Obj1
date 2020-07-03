@@ -45,6 +45,7 @@ def AE(y, dimension=100, learning_rate = 1e-4, regularization = 1e-4,batch_size=
 
     return (w1,b1,w2,b2,history.history['loss'],time_list)
 
+
 def train_AE_save(data,
                   dimension,
                   epochs,
@@ -80,7 +81,7 @@ def train_AE_save(data,
                              activation=activation)
 
     # Save loss
-    np.savetxt('../results/' + name +
+    np.savetxt('results/' + name +
                '_AE_loss_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -90,7 +91,7 @@ def train_AE_save(data,
                loss, delimiter=',')
 
     # Save time
-    np.savetxt('../results/' + name +
+    np.savetxt('results/' + name +
                '_AE_time_dim_' + str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +
@@ -100,7 +101,7 @@ def train_AE_save(data,
                end_time, delimiter=',')
 
     # Save decider weights
-    np.savetxt('../results/' + name +
+    np.savetxt('results/' + name +
                '_AE_w2_dim_'+str(dimension) +
                "_reg_" + str(regularization) +
                '_epoch_' + str(epochs) +

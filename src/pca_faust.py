@@ -3,16 +3,17 @@
 # 22 June 2020
 
 import numpy as np
-from src.meshManipulation import vecToMesh , \
+from src.meshManipulation import \
     meshToData,mean3DVis,\
     loadMeshes,PlotModesVaration,\
-    modesOfVariationVis, PlotScatterGram,shapeParameters,meshVisSave
-
-
+    modesOfVariationVis, PlotScatterGram,shapeParameters
 from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
 
 def AnalyticalPCA(y, dimension):
     '''
+    This fits basic PCA
 
     :param y: The data to reduce
     :param dimension: dimension to reduce to
@@ -29,27 +30,24 @@ def AnalyticalPCA(y, dimension):
     #   The singular values corresponding to each of the selected components.
     # mean_ : array, shape (n_features,)
 
-def principalComponent3DVis(pca_obj, triangles, number_of_vis, name):
-    '''
-    This function takes in pca and saves 3D visualisations of the principal components
-    :param pca_obj: the PCA object from sklearn.decomposition
-    :param triangles: this shows the connections for the 3D object
-    :param number_of_vis: How many PCs to visualise
-    :param name: String name to be saved
-    :return: nothing
-    '''
 
-    components = pca_obj.components_
+def variationExplainedPlot(singular_values,name):
+    """
+    Creates a cummulative variation explained for PCA. This is easy to plot
 
-    for i in range(0, number_of_vis):
-        # create a mesh
-        newMesh = vecToMesh(list=components[i, :],
-                            triangles= triangles)
+    :param singular_values: for PCA
+    :return: cum_variance_explained: cummulative variation explained
+    """
+    # calculate cumulative variance
+    total_val = sum(singular_values)
+    variance_explained = singular_values/total_val
+    cum_variance_explained = np.cumsum(variance_explained)
 
-        meshVisSave(newMesh, "pictures/" + name + "PC" + str(i+1))
+    plt.plot(cum_variance_explained)
+    plt.ylabel('explained_variance')
+    plt.savefig("results/" + name + 'VariationExplained.png')
 
-
-if __name__ == '__main__':
+def main():
 
     # fetch data
     meshes = loadMeshes("meshes/")
@@ -60,13 +58,14 @@ if __name__ == '__main__':
     # Get triangles
     triangles = meshes[0].triangles
 
-    # dimension to reduce
+    # dimension to reduce to
     dimension = 100
 
-    colour = [180,180,180]
+    # Set the colour
+    colour = [180, 180, 180] # Grey
 
-    # Now we have squeezed those 60000 down to 16 images of principal components
-    pca_faust = AnalyticalPCA(data, dimension)  # has dimensions (16, 20670)
+    # PCA
+    pca_faust = AnalyticalPCA(data, dimension)
 
     # Get the components
     components = pca_faust.components_
@@ -74,33 +73,28 @@ if __name__ == '__main__':
     # Get the eigen values
     eigenvalues = pca_faust.singular_values_
     np.savetxt('results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
+
     # Get the mean
     mean = pca_faust.mean_
 
-
-    # visualise and save the top 3 PCs
-    #principalComponent3DVis(pca_faust, triangles, 3, "faust_PCA_")
-
-    #visualise and save the mean mesh
-    mean3DVis(data, triangles,"faust_PCA_", col=colour)
+    # visualise and save the mean mesh
+    mean3DVis(data, triangles, "faust_PCA_", col=colour)
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
     np.savetxt('results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
-    modesOfVariationVis(mean,components,eigenvalues,3,triangles,"faust_PCA_", col= colour)
+    modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "faust_PCA_", col=colour)
 
     # Plot modes of variation
-    PlotModesVaration(3,"faust_PCA_",100)
+    PlotModesVaration(3, "faust_PCA_")
 
     # Plot a basic scatterGram
-    PlotScatterGram(b,3,"faust_PCA_")
+    PlotScatterGram(b, 3, "faust_PCA_")
 
     # plot variation explained by PCA
-    # var_explained = variationExplained(eigenvalues)
-    # plt.plot(var_explained)
-    # plt.ylabel('explained_variance')
-    # plt.show()
+    variationExplainedPlot(eigenvalues, "faust_PCA_")
 
-    #TODO: Not sure why it crashes with (interrupted by signal 11: SIGSEGV) after PlotModesVaration
+if __name__ == '__main__':
+    main()

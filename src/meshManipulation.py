@@ -224,7 +224,7 @@ def PlotModesVaration(number_of_modes, name):
                 plt.title("0", fontsize=10)
             fig_count += 1
 
-    plt.savefig('results/'+name+'modesVariation_dim' + '.pdf', dpi=600)
+    plt.savefig('results/'+name+'modesVariation' + '.pdf', dpi=600)
     #plt.show()
 
 

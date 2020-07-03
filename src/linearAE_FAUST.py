@@ -9,7 +9,7 @@ import glob2
 def main():
 
     # fetch data
-    meshes = loadMeshes("../meshes/")
+    meshes = loadMeshes("meshes/")
 
     # create vertices dataset
     data = meshToData(meshes)
@@ -47,7 +47,7 @@ def main():
     # results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25.csv #
     # Appears to be the best run
 
-    direc = '../results/'
+    direc = 'results/'
     paths = glob2.glob(direc + "*faust_AE_w2_dim_100_reg_0.0001_epoch_10000_lr_0.0001_bs_25*")
     trainingAEViz(data, paths, triangles, "faust_AE_", colour)
 
