@@ -1,4 +1,6 @@
-/meshes/*
+meshes/*
+!meshes/.gitkeep
 /pictures
 /__pycache__
-/results/*
+results/*
+!results/.gitkeep
