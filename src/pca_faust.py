@@ -6,9 +6,8 @@ import numpy as np
 from src.meshManipulation import \
     meshToData,mean3DVis,\
     loadMeshes,PlotModesVaration,\
-    modesOfVariationVis, PlotScatterGram,shapeParameters
+    modesOfVariationVis, PlotScatterGram,shapeParameters, variationExplainedPlot
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 
 
 def AnalyticalPCA(y, dimension):
@@ -29,27 +28,6 @@ def AnalyticalPCA(y, dimension):
     # singular_values_ : array, shape (n_components,)
     #   The singular values corresponding to each of the selected components.
     # mean_ : array, shape (n_features,)
-
-
-def variationExplainedPlot(singular_values,name):
-    """
-    Creates a cummulative variation explained for plot for PCA.
-
-    :param singular_values: for PCA
-    :return: cum_variance_explained: cummulative variation explained
-    """
-
-    # calculate cumulative variance
-    total_val = sum(singular_values)
-    variance_explained = singular_values/total_val
-    cum_variance_explained = np.cumsum(variance_explained)
-
-    plt.figure()
-    plt.plot(cum_variance_explained)
-    plt.ylabel("Variation Explained")
-    plt.xlabel("Principal Components")
-    plt.savefig("../results/" + name + 'VariationExplained.png')
-
 
 def main():
 

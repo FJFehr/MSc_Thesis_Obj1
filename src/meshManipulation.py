@@ -50,15 +50,19 @@ def vecToMesh(list, triangles, N=3):
     return newMesh
 
 
-def loadMeshes(direc= "meshes/"):
+def loadMeshes(direc="meshes/", ply_Bool=True):
     '''
-    Provided a directory of .ply meshes. This function reads them in and returns a list of meshes
+    Provided a directory of .ply meshes (default) otherwise .stl format. This function reads them in and returns a list of meshes
 
     :param direc: directory of meshes
     :return: List of meshes
     '''
-    paths = glob2.glob(direc + "*.ply")
-    paths = sorted(paths) # makes sure its in the correct order
+    if (ply_Bool):
+        paths = glob2.glob(direc + "*.ply")
+    else:
+        paths = glob2.glob(direc + "*.stl")
+
+    paths = sorted(paths)  # makes sure its in the correct order
     meshes = [o3d.io.read_triangle_mesh(path) for path in paths]
     return meshes
 
@@ -84,13 +88,15 @@ def meshToData(meshes):
     return data
 
 
-def meshVisSave(mesh, path, col):
+def meshVisSave(mesh, path, col, x_rotation=0,y_rotation=0):
     '''
     This function saves a mesh visualisation as png
 
     :param mesh: 3D mesh obj from open3D
     :param path: path and name to where you would like it saved
     :param col: The colour in a list [255,255,255]
+    :param x_rotation: The amount you rotate in the x direction
+    :param y_rotation: The amount you rotate in the y direction
     :return: saves mesh
     '''
     # compute normals to visualise
@@ -102,14 +108,17 @@ def meshVisSave(mesh, path, col):
     mesh.paint_uniform_color(col)
     vis = o3d.visualization.Visualizer()
     vis.create_window()
+    ctr = vis.get_view_control()
+    ctr.set_zoom(100)
     vis.add_geometry(mesh)
+    ctr.rotate(x_rotation, y_rotation)
     vis.update_geometry(mesh)
     vis.poll_events()
     vis.capture_screen_image(path + ".png")
     vis.destroy_window()
 
 
-def mean3DVis(data, triangles, name, col):
+def mean3DVis(data, triangles, name, col,x_rotation=0,y_rotation=0):
     '''
     Function takes in data and visualises the mean
 
@@ -122,7 +131,7 @@ def mean3DVis(data, triangles, name, col):
 
     mean = data.mean(axis = 0)
     mean_mesh = vecToMesh(mean, triangles)
-    meshVisSave(mean_mesh, "../results/" + name + "mean", col)\
+    meshVisSave(mean_mesh, "../results/" + name + "mean", col,x_rotation= x_rotation,y_rotation=y_rotation)
 
 
 def shapeParameters(data,components):
@@ -149,7 +158,7 @@ def shapeParameters(data,components):
     return b
 
 
-def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col):
+def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col,x_rotation=0, y_rotation=0):
     '''
     This function saves the individual modes of variation once they have been calculated
 
@@ -160,6 +169,8 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
     :param triangles: The connection triangles for the mesh
     :param name: how will they be saved
     :param col: The colour in a list [255,255,255]
+    :param x_rotation: The amount you rotate in the x direction
+    :param y_rotation: The amount you rotate in the y direction
     :return: saves meshes
     '''
 
@@ -173,8 +184,10 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
             newMesh = vecToMesh(x_hat, triangles)
 
             if (min_extreme+j != 0):
-                meshVisSave(newMesh, '../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),col)
-
+                meshVisSave(newMesh, '../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),
+                            col,
+                            x_rotation= x_rotation,
+                            y_rotation=y_rotation)
 
 def trim(im):
 
@@ -246,3 +259,22 @@ def PlotScatterGram(b, num_of_modes, name):
             plt.axvline(0, color="r")
             fig_count += 1
     plt.savefig("../results/"+name + 'scatterGrams.png')
+
+def variationExplainedPlot(singular_values, name):
+    """
+    Creates a cummulative variation explained for plot for PCA.
+
+    :param singular_values: for PCA
+    :return: cum_variance_explained: cummulative variation explained
+    """
+
+    # calculate cumulative variance
+    total_val = sum(singular_values)
+    variance_explained = singular_values / total_val
+    cum_variance_explained = np.cumsum(variance_explained)
+
+    plt.figure()
+    plt.plot(cum_variance_explained)
+    plt.ylabel("Variation Explained")
+    plt.xlabel("Principal Components")
+    plt.savefig("../results/" + name + 'VariationExplained.png')
