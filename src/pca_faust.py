@@ -10,32 +10,52 @@ from src.meshManipulation import \
 from sklearn.decomposition import PCA
 
 
-def AnalyticalPCA(y, dimension):
+def AnalyticalPCA(y, dimension, type = "sklearn"):
     '''
     This fits basic PCA
 
     :param y: The data to reduce
     :param dimension: dimension to reduce to
-    :return: pca fit object
+    :param type: 'sklearn' - The sklearn function, 'SVD' - using SVD, 'eigen' - using eigen decomposition
+    :return: (components, eigenvalues)
     '''
-    pca = PCA(n_components=dimension)
-    return pca.fit(y)
 
-    #  components_ : array, shape (n_components, n_features)
-    #   returns the  Principal axes in feature space, representing the directions of maximum variance in the data
-    # explained_variance_ : array, shape (n_components,)
-    #   The amount of variance explained by each of the selected components.
-    # singular_values_ : array, shape (n_components,)
-    #   The singular values corresponding to each of the selected components.
-    # mean_ : array, shape (n_features,)
+    if(type == "sklearn"):
+        # PCA with function
+        print("Using sklearn function")
+        pca = PCA(n_components=dimension)
+        pca_fit = pca.fit(y)
+        return(pca_fit.components_,pca_fit.singular_values_**2/y.shape[1])
+
+    if (type == "SVD"):
+        #Solve with SVD
+        print("Using SVD")
+        (u_vectors, singular_values, v_vectors) = np.linalg.svd((1 / y.shape[1]) * y, full_matrices=False)
+        return (v_vectors, singular_values**2*y.shape[1])
+
+    if (type == "eigen"): # Seems to only work if we center and divide by stdev
+        # Solve with Eigen trick XX^T
+        print("Using Eigen decomposition")
+        proxyCov = 1 / y.shape[1] * (y.dot(y.T))
+        (w, v) = np.linalg.eig(proxyCov)
+        # Now project into the correct space
+        big_v = (y.T).dot(v)
+        # Normalise
+        big_v_norm = big_v / np.linalg.norm(big_v, axis=0)
+        return (big_v_norm, w)
 
 def main():
-
+    # import os
+    # os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
     # fetch data
     meshes = loadMeshes("../meshes/")
 
     # create vertices dataset
-    data = meshToData(meshes)
+    rawData = meshToData(meshes)
+    mean = rawData.mean(axis=0)
+    # sd = np.std(data, axis=0)
+
+    data = (rawData - mean)
 
     # Get triangles
     triangles = meshes[0].triangles
@@ -47,20 +67,20 @@ def main():
     colour = [180, 180, 180] # Grey
 
     # PCA
-    pca_faust = AnalyticalPCA(data, dimension)
-
-    # Get the components
-    components = pca_faust.components_
-
-    # Get the eigen values
-    eigenvalues = pca_faust.singular_values_
+    # (components,eigenvalues) = AnalyticalPCA(data, dimension, "sklearn")
+    # print("sklearn eigenvalues", eigenvalues)
+    # print("sklearn components", components)
+    # (components,eigenvalues) = AnalyticalPCA(data, dimension, "eigen")
+    # print("eigen eigenvalues", eigenvalues)
+    # print("eigen components", components)
+    (components,eigenvalues) = AnalyticalPCA(data, dimension, "SVD")
+    print("SVD eigenvalues", eigenvalues)
+    print("SVD components", components)
+    eigenvalues = np.sqrt(eigenvalues*data.shape[1])
     np.savetxt('../results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
-    # Get the mean
-    mean = pca_faust.mean_
-
     # visualise and save the mean mesh
-    mean3DVis(data, triangles, "faust_PCA_", col=colour)
+    mean3DVis(rawData, triangles, "faust_PCA_", col=colour)
 
     # Get and save shape parameters
     b = shapeParameters(data, components)

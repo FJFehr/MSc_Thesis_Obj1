@@ -111,7 +111,7 @@ def train_AE_save(data,
                w2, delimiter=',')
 
 
-def training_function(data, param_grid, name = "faust"):
+def training_function(data, param_grid, name):
     '''
     This function takes in data, a name and a parameter grid as seen below
 
@@ -125,6 +125,7 @@ def training_function(data, param_grid, name = "faust"):
 
     :param data: Your 3D mesh data
     :param param_grid: a dict of your parameters to run.
+    :param name: The specified name
     :return: saves it
     '''
 
@@ -153,7 +154,7 @@ def training_function(data, param_grid, name = "faust"):
         print("completed " + str(i/len(params)))
         print("--- %s seconds ---" % +(time.time() - start_time))
 
-def trainingAEViz(data, paths,triangles,name,col):
+def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0):
 
     '''
     Once training has been run you will want to visualise the results
@@ -168,7 +169,7 @@ def trainingAEViz(data, paths,triangles,name,col):
 
     #Calculate the mean
     mean = data.mean(axis=0)
-    mean3DVis(data, triangles, name, col)
+    mean3DVis(data, triangles, name, col,x_rotation=x_rotation, y_rotation=y_rotation)
 
     for path in paths:
 
@@ -186,10 +187,11 @@ def trainingAEViz(data, paths,triangles,name,col):
         np.savetxt('../results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
 
         # Load eigenvalues from PCA for bounds
-        pca_eigen_values = np.loadtxt('../results/faust_PCA_Eigen.csv', delimiter=',')
+        pca_eigen_values = np.loadtxt('../results/femur_PCA_Eigen.csv', delimiter=',')
+        # pca_eigen_values = np.loadtxt('../results/faust_PCA_Eigen.csv', delimiter=',')
 
         # Save the modes of variations pictures
-        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col)
+        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col,x_rotation=x_rotation, y_rotation=y_rotation)
 
         # Combine them
         PlotModesVaration(3, name)
