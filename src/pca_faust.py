@@ -45,8 +45,8 @@ def AnalyticalPCA(y, dimension, type = "sklearn"):
         return (big_v_norm, w)
 
 def main():
-    # import os
-    # os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
+    import os
+    os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
     # fetch data
     meshes = loadMeshes("../meshes/")
 
@@ -76,7 +76,7 @@ def main():
     (components,eigenvalues) = AnalyticalPCA(data, dimension, "SVD")
     print("SVD eigenvalues", eigenvalues)
     print("SVD components", components)
-    eigenvalues = np.sqrt(eigenvalues*data.shape[1])
+    eigenvalues = np.sqrt(eigenvalues*data.shape[1])**2/data.shape[0]
     np.savetxt('../results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
     # visualise and save the mean mesh

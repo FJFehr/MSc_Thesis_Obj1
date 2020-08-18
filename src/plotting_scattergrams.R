@@ -3,31 +3,31 @@
 # 2 July 2020
 
 library(tidyverse)
-#setwd("../MSc_Thesis_Obj1/src")
+setwd("../MSc_Thesis_Obj1/src")
 saving_directory = "../results/"
 
 # NOTE: The signs of the AE components might need to be reversed. *-1
 
 # Shape parameters PCA
-bPCA <- read.csv("faust_PCA_ShapeParamaters_b.csv",header = F) %>%
+bPCA <- read.csv("../results/faust_PCA_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
 
 # Shape parameters Linear AutoEncoder
-bLinearAE <-  read.csv("faust_AE_ShapeParamaters_b.csv",header = F) %>%
+bLinearAE <-  read.csv("../results/faustlinear_AE_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
 # Were reversed so getting correct orientation
 # bLinearAE$V2 <- bLinearAE$V2 *-1
 
 # Shape parameters Non-linear AutoEncoder
-bNonlinearAE <- read.csv("faust_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
+bNonlinearAE <- read.csv("../results/faust_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
-bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
+bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
 
 # Eigen values from PCA
-eigen <- read.csv("faust_PCA_Eigen.csv",header = F) %>%
+eigen <- read.csv("../results/faust_PCA_Eigen.csv",header = F) %>%
   as.data.frame()
 
 #####################################################################################################################
@@ -182,7 +182,7 @@ plot_scattergram(b = bPCA,
                  dim1 = 1,
                  dim2 = 2,
                  title = "FAUST PCA scattergram",
-                 name = paste0(saving_directory,"faust_PCA_Scattergram.png"), # change to .pdf if you want a pdf
+                 name = paste0(saving_directory,"faust_PCA_Scattergram1.png"), # change to .pdf if you want a pdf
                  saveBoolean = T)
 
 # Compare PCA and linear AE shape parameters for the FAUST dataset 
@@ -194,7 +194,7 @@ plot_compare_scattergram(b1 = bPCA,
                  dim1 = 1,
                  dim2 = 2,
                  title = "FAUST PCA vs Linear AE scattergram",
-                 name = paste0(saving_directory,"faust_PCAvslinearAE_Scattergram.png"), # change to .pdf if you want a pdf
+                 name = paste0(saving_directory,"faust_PCAvslinearAE_Scattergram1.png"), # change to .pdf if you want a pdf
                  saveBoolean = T)
 
 
@@ -208,5 +208,5 @@ plot_compare_scattergram2(b1 = bLinearAE,
                          dim1 = 1,
                          dim2 = 2,
                          title = "FAUST Linear vs Non-Linear AE scattergram",
-                         name = paste0(saving_directory,"faust_LinearAEvsNonLinearAE_Scattergram.png"), # change to .pdf if you want a pdf
+                         name = paste0(saving_directory,"faust_LinearAEvsNonLinearAE_Scattergram1.png"), # change to .pdf if you want a pdf
                          saveBoolean = T)

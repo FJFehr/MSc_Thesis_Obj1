@@ -171,6 +171,9 @@ def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0):
     mean = data.mean(axis=0)
     mean3DVis(data, triangles, name, col,x_rotation=x_rotation, y_rotation=y_rotation)
 
+    # Center data
+    data = data - mean
+
     for path in paths:
 
         #load the path to training output
@@ -187,8 +190,8 @@ def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0):
         np.savetxt('../results/'+name+'ShapeParamaters_b.csv', b, delimiter=',')
 
         # Load eigenvalues from PCA for bounds
-        pca_eigen_values = np.loadtxt('../results/femur_PCA_Eigen.csv', delimiter=',')
-        # pca_eigen_values = np.loadtxt('../results/faust_PCA_Eigen.csv', delimiter=',')
+        # pca_eigen_values = np.loadtxt('../results/femur_PCA_Eigen.csv', delimiter=',')
+        pca_eigen_values = np.loadtxt('../results/faust_PCA_Eigen.csv', delimiter=',')
 
         # Save the modes of variations pictures
         modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col,x_rotation=x_rotation, y_rotation=y_rotation)

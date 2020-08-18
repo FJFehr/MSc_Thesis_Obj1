@@ -12,7 +12,11 @@ def main():
     meshes = loadMeshes("../meshes/")
 
     # create vertices dataset
-    data = meshToData(meshes)
+    rawData = meshToData(meshes)
+    mean = rawData.mean(axis=0)
+
+    # center the data
+    data = (rawData - mean)
 
     # Get triangles
     triangles = meshes[0].triangles
@@ -46,7 +50,7 @@ def main():
 
     direc = '../results/'
     paths = glob2.glob(direc + "*faust_nonlinear_tanh_AE_w2*")
-    trainingAEViz(data, paths, triangles, "faust_nonlinear_AE_", colour)
+    trainingAEViz(rawData, paths, triangles, "faust_nonlinear_AE_", colour)
 
 
 if __name__ == '__main__':

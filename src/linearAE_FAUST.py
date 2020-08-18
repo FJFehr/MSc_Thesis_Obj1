@@ -12,7 +12,11 @@ def main():
     meshes = loadMeshes("../meshes/")
 
     # create vertices dataset
-    data = meshToData(meshes)
+    rawData = meshToData(meshes)
+    mean = rawData.mean(axis=0)
+
+    # center the data
+    data = (rawData - mean)
 
     # Get triangles
     triangles = meshes[0].triangles
@@ -38,7 +42,7 @@ def main():
                   'regularization': [1e-4],
                   'activation': ['linear']}
 
-    training_function(data, param_grid,name='faust')
+    #training_function(data, param_grid,name='faust_linear_')
 
     #### VISUALISING ####
 
@@ -49,7 +53,7 @@ def main():
 
     direc = '../results/'
     paths = glob2.glob(direc + "*faustlinear_AE_w2_*")
-    trainingAEViz(data, paths, triangles, "faust_AE_", colour)
+    trainingAEViz(rawData, paths, triangles, "faustlinear_AE_", colour)
 
 if __name__ == '__main__':
     main()
