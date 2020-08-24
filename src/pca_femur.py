@@ -9,13 +9,54 @@ from src.meshManipulation import \
     modesOfVariationVis, PlotScatterGram,shapeParameters, variationExplainedPlot
 from sklearn.decomposition import PCA
 
-def main():
+def AnalyticalPCA(y, dimension, type = "sklearn"):
+    '''
+    This fits basic PCA
 
+    :param y: The data to reduce
+    :param dimension: dimension to reduce to
+    :param type: 'sklearn' - The sklearn function, 'SVD' - using SVD, 'eigen' - using eigen decomposition
+    :return: (components, eigenvalues)
+    '''
+
+    if(type == "sklearn"):
+        # PCA with function
+        print("Using sklearn function")
+        pca = PCA(n_components=dimension)
+        pca_fit = pca.fit(y)
+        return(pca_fit.components_,pca_fit.singular_values_**2/y.shape[1])
+
+    if (type == "SVD"):
+        #Solve with SVD
+        print("Using SVD")
+        (u_vectors, singular_values, v_vectors) = np.linalg.svd((1 / y.shape[1]) * y, full_matrices=False)
+        return (v_vectors, singular_values**2*y.shape[1])
+
+    if (type == "eigen"): # Seems to only work if we center and divide by stdev
+        # Solve with Eigen trick XX^T
+        print("Using Eigen decomposition")
+        proxyCov = 1 / y.shape[1] * (y.dot(y.T))
+        (w, v) = np.linalg.eig(proxyCov)
+        # Now project into the correct space
+        big_v = (y.T).dot(v)
+        # Normalise
+        big_v_norm = big_v / np.linalg.norm(big_v, axis=0)
+        return (big_v_norm, w)
+
+def main():
+    import os
+    os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
     # fetch data
-    meshes = loadMeshes("../meshes/femurs/",ply_Bool=False) # dims 50 36390
+    meshes = loadMeshes("../meshes/femurs/", ply_Bool=False)
 
     # create vertices dataset
-    data = meshToData(meshes)
+    rawData = meshToData(meshes)
+    mean = rawData.mean(axis=0)
+    # sd = np.std(rawData, axis=0)
+
+    # Centering
+    data = (rawData - mean)
+    # print(data.shape) # dims 50, 35982 # Faust is roughly 20000
 
     # Get triangles
     triangles = meshes[0].triangles
@@ -26,31 +67,22 @@ def main():
     # Set the colour
     colour = [180, 180, 180] # Grey
 
-    # Get the mean
-    mean = data.mean(axis=0)
+    # PCA - The data is too large to do a full PCA, thus we do an SVD - This is built in in the PCA code
+    # PCA
+    # (components,eigenvalues) = AnalyticalPCA(data, dimension, "sklearn")
+    # print("sklearn eigenvalues", eigenvalues)
+    # print("sklearn components", components)
+    # (components,eigenvalues) = AnalyticalPCA(data, dimension, "eigen")
+    # print("eigen eigenvalues", eigenvalues)
+    # print("eigen components", components)
+    (components, eigenvalues) = AnalyticalPCA(data, dimension, "SVD")
+    print("SVD eigenvalues", eigenvalues)
+    print("SVD components", components)
+    eigenvalues = np.sqrt(eigenvalues * data.shape[1])**2/data.shape[0]
+    np.savetxt('../results/femur_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
     # visualise and save the mean mesh
-    mean3DVis(data, triangles, "femur_PCA_", col=colour, x_rotation=-400, y_rotation=-800)
-
-    # PCA - The data is too large to do a full PCA, thus we do an SVD - This is built in in the PCA code
-    pca = PCA(n_components=dimension)
-    pca_femur = pca._fit_full(data, dimension) # This approximation is better.
-
-    # Get components
-    # components = pca.fit(data).components_  # pca original but approximation is kak
-    components = pca_femur[2] # this makes sense in the scattergram. Its the V in SVD
-
-    # Get eigenvalues
-    # (all of these options lead to the same answer which is the SINGULAR VALUES - NOT EIGEN)
-    # singularVals = np.linalg.svd(data,full_matrices=False)[1]
-    # singularVals =  pca.fit(data).singular_values_
-
-    #The link below shows the relationship between singular values and eigen values. It seems to make sense.
-    # https://stats.stackexchange.com/questions/134282/relationship-between-svd-and-pca-how-to-use-svd-to-perform-pca
-
-    singular_vals = pca._fit_full(data, dimension)[1]
-    eigenvalues = (singular_vals) ** 2 / np.sqrt(50 - 1)
-    np.savetxt('../results/femur_PCA_Eigen.csv', eigenvalues, delimiter=',')
+    mean3DVis(rawData, triangles, "femur_PCA_", col=colour, x_rotation=-400, y_rotation=-800)
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
@@ -58,8 +90,8 @@ def main():
 
     # Save modes of variation
     modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "femur_PCA_", col=colour,x_rotation=-400,y_rotation=-800)
-    #
-    # # Plot modes of variation
+
+    # Plot modes of variation
     PlotModesVaration(3, "femur_PCA_")
 
     # Plot a basic scatterGram
