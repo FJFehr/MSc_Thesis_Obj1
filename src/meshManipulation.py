@@ -1,4 +1,4 @@
-# This script reads in 3D meshes (FAUST) and trains a AE
+# This contains all the functions needed for working with meshes
 # Fabio Fehr
 # 22 June 2020
 
@@ -88,7 +88,35 @@ def meshToData(meshes):
     return data
 
 
-def meshVisSave(mesh, path, col, x_rotation=0,y_rotation=0):
+# def meshVisSave(mesh, path, col, x_rotation=0,y_rotation=0):
+#     '''
+#     This function saves a mesh visualisation as png
+#
+#     :param mesh: 3D mesh obj from open3D
+#     :param path: path and name to where you would like it saved
+#     :param col: The colour in a list [255,255,255]
+#     :param x_rotation: The amount you rotate in the x direction
+#     :param y_rotation: The amount you rotate in the y direction
+#     :return: saves mesh
+#     '''
+#     # compute normals to visualise
+#     mesh.compute_vertex_normals()
+#
+#     # convert the 255 code to be between 0-1 of Open3d
+#     col = [i / 255.0 for i in col]
+#
+#     mesh.paint_uniform_color(col)
+#     vis = o3d.visualization.Visualizer()
+#     vis.create_window()
+#     ctr = vis.get_view_control()
+#     vis.add_geometry(mesh)
+#     ctr.rotate(x_rotation, y_rotation)
+#     vis.update_geometry(mesh)
+#     vis.poll_events()
+#     vis.capture_screen_image(path + ".png")
+#     vis.destroy_window()
+
+def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
     '''
     This function saves a mesh visualisation as png
 
@@ -104,13 +132,13 @@ def meshVisSave(mesh, path, col, x_rotation=0,y_rotation=0):
 
     # convert the 255 code to be between 0-1 of Open3d
     col = [i / 255.0 for i in col]
-
     mesh.paint_uniform_color(col)
     vis = o3d.visualization.Visualizer()
     vis.create_window()
     ctr = vis.get_view_control()
-    ctr.set_zoom(100)
     vis.add_geometry(mesh)
+    # ctr.set_lookat(lookat = [0.04352001454441809, 0.21342596571740188, -0.010379344423086655])
+    # ctr.set_zoom(zoom=0.7)
     ctr.rotate(x_rotation, y_rotation)
     vis.update_geometry(mesh)
     vis.poll_events()
@@ -239,7 +267,6 @@ def PlotModesVaration(number_of_modes, name):
 
     plt.savefig('../results/'+name+'modesVariation' + '.pdf', dpi=600)
     #plt.show()
-
 
 def PlotScatterGram(b, num_of_modes, name):
     '''
