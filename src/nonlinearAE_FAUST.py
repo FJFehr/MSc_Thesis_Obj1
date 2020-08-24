@@ -28,7 +28,7 @@ def main():
 
     # Full training scheme
     # param_grid = {'dimension': [100],
-    #               'epochs': [10000],
+    #               'epochs': [20000],
     #               'learning_rate': [1e-4],
     #               'batch_size': [25],
     #               'regularization': [1e-4],
@@ -36,21 +36,21 @@ def main():
 
     # Best result
     param_grid = {'dimension': [100],
-                  'epochs': [10000],
+                  'epochs': [20000],
                   'learning_rate': [1e-4],
                   'batch_size': [25],
                   'regularization': [1e-4],
                   'activation': ["tanh"]}
 
-    training_function(data, param_grid, name='faust_nonlinear_')
+    # training_function(data, param_grid, name='faust_nonlinear_')
 
     #### VISUALISING ####
 
     # Set the directory and the wild cards to select all runs of choice
 
     direc = '../results/'
-    paths = glob2.glob(direc + "*faust_nonlinear_tanh_AE_w2*")
-    trainingAEViz(rawData, paths, triangles, "faust_nonlinear_AE_", colour)
+    paths = glob2.glob(direc + "*faust_nonlinear_tanh_AE_w2*20000*")
+    trainingAEViz(rawData, paths, triangles, "faust_nonlinear_AE_", colour,eigen_faust_Bool= True)
 
 
 if __name__ == '__main__':
