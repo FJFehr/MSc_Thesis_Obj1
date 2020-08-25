@@ -12,17 +12,17 @@ saving_directory = "../results/"
 bPCA <- read.csv("../results/femur_PCA_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame()
 
-# # Shape parameters Linear AutoEncoder
-# bLinearAE <-  read.csv("faust_AE_ShapeParamaters_b.csv",header = F) %>%
-#   as.data.frame() %>% 
-#   mutate(class = as.factor(rep(seq(0,9),10)))
-# # Were reversed so getting correct orientation
-# # bLinearAE$V2 <- bLinearAE$V2 *-1
-# 
+# Shape parameters Linear AutoEncoder
+bLinearAE <-  read.csv("../results/femur_linear_AE_ShapeParamaters_b.csv",header = F) %>%
+  as.data.frame() 
+# Were reversed so getting correct orientation
+bLinearAE$V1 <- bLinearAE$V1 *-1
+# bLinearAE$V2 <- bLinearAE$V2 *-1
+
 # # Shape parameters Non-linear AutoEncoder
-# bNonlinearAE <- read.csv("faust_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
-#   as.data.frame() %>% 
-#   mutate(class = as.factor(rep(seq(0,9),10)))
+bNonlinearAE <- read.csv("../results/femur_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
+  as.data.frame() 
+bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
 # bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
 
 # Eigen values from PCA
@@ -175,7 +175,7 @@ plot_compare_scattergram2 <- function(b1,b2,label1,label2,eigenValues,dim1=1,dim
 #####################################################################################################################
 
 
-# Plot 2 shape parameters for the PCA FAUST dataset 
+# Plot 2 shape parameters for the PCA femur dataset 
 plot_scattergram(b = bPCA,
                  eigenValues = eigen,
                  dim1 = 1,
@@ -184,7 +184,7 @@ plot_scattergram(b = bPCA,
                  name = paste0(saving_directory,"femur_PCA_Scattergram.png"), # change to .pdf if you want a pdf
                  saveBoolean = T)
 
-# Compare PCA and linear AE shape parameters for the FAUST dataset 
+# Compare PCA and linear AE shape parameters for the femur dataset 
 plot_compare_scattergram(b1 = bPCA,
                          b2 = bLinearAE,
                          label1 = "PCA",
@@ -192,13 +192,13 @@ plot_compare_scattergram(b1 = bPCA,
                          eigenValues = eigen,
                          dim1 = 1,
                          dim2 = 2,
-                         title = "FAUST PCA vs Linear AE scattergram",
-                         name = paste0(saving_directory,"faust_PCAvslinearAE_Scattergram.png"), # change to .pdf if you want a pdf
+                         title = "femur PCA vs Linear AE scattergram",
+                         name = paste0(saving_directory,"femur_PCAvslinearAE_Scattergram.png"), # change to .pdf if you want a pdf
                          saveBoolean = T)
 
 
 
-# Compare Linear and Non-linear AE shape parameters for the FAUST dataset 
+# Compare Linear and Non-linear AE shape parameters for the femur dataset 
 plot_compare_scattergram2(b1 = bLinearAE,
                           b2 = bNonlinearAE,
                           label1 = "Linear AE",
@@ -206,6 +206,22 @@ plot_compare_scattergram2(b1 = bLinearAE,
                           eigenValues = eigen,
                           dim1 = 1,
                           dim2 = 2,
-                          title = "FAUST Linear vs Non-Linear AE scattergram",
-                          name = paste0(saving_directory,"faust_LinearAEvsNonLinearAE_Scattergram.png"), # change to .pdf if you want a pdf
+                          title = "femur Linear vs Non-Linear AE scattergram",
+                          name = paste0(saving_directory,"Femur_LinearAEvsNonLinearAE_Scattergram.png"), # change to .pdf if you want a pdf
                           saveBoolean = T)
+# Loss over time?
+
+
+loss <- read.csv("../results/femur_linear_linear_AE_loss_dim_50_reg_0.0001_epoch_20000_lr_0.0001_bs_10.csv",header = F)
+plot(x = 1:NROW(loss),y =loss)
+cbind(x = 1:NROW(loss),y =loss) %>%
+  .[10000:20000,]%>%
+ggplot(aes(x = x,y =V1))+
+  geom_line()+
+  geom_smooth()+
+  labs(title = "Loss per epoch",
+       x = "Epochs",
+       y = "Loss",
+       parse = T)+
+  theme_light()
+

@@ -14,7 +14,7 @@ bPCA <- read.csv("../results/faust_PCA_ShapeParamaters_b.csv",header = F) %>%
   mutate(class = as.factor(rep(seq(0,9),10)))
 
 # Shape parameters Linear AutoEncoder
-bLinearAE <-  read.csv("../results/faustlinear_AE_ShapeParamaters_b.csv",header = F) %>%
+  bLinearAE <-  read.csv("../results/faust_linear_AE_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
 # Were reversed so getting correct orientation
@@ -24,7 +24,8 @@ bLinearAE <-  read.csv("../results/faustlinear_AE_ShapeParamaters_b.csv",header 
 bNonlinearAE <- read.csv("../results/faust_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
-bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
+# bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
+# bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
 
 # Eigen values from PCA
 eigen <- read.csv("../results/faust_PCA_Eigen.csv",header = F) %>%

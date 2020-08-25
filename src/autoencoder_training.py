@@ -164,6 +164,7 @@ def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0,eige
     :param triangles: The triangles for your mesh visualisations
     :param name: Name you will use to save.
     :param: col: [255,255,255] colour code
+    :param: eigen_faust_Bool: boolean to fetch the eigen values for the faust data or the femur data
     :return: saves plots
     '''
 

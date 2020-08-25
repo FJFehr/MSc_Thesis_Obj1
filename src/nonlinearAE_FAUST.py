@@ -42,7 +42,7 @@ def main():
                   'regularization': [1e-4],
                   'activation': ["tanh"]}
 
-    # training_function(data, param_grid, name='faust_nonlinear_')
+    training_function(data, param_grid, name='faust_nonlinear_')
 
     #### VISUALISING ####
 

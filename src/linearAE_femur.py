@@ -44,19 +44,16 @@ def main():
                   'regularization': [1e-4],
                   'activation': ['linear']}
 
-    # training_function(data, param_grid,name='femur_linear_')
+    training_function(data, param_grid,name='femur_linear_')
 
     #### VISUALISING ####
 
     # Set the directory and the wild cards to select all runs of choice
 
-    # results/femurlinear_AE_w2_dim_50_reg_0.0001_epoch_20000_lr_0.0001_bs_10.csv #
-    # Appears to be the best run
-
     direc = '../results/'
-    # paths = glob2.glob(direc + "*femur_linear_linear_AE_w2*")
-    paths = glob2.glob(direc + "*femur_linear_linear_AE_w2_dim_50_reg_0.0001_epoch_20000_lr_0.0001_bs_10.csv*")
-    trainingAEViz(rawData, paths, triangles, "femur_linear_AE_", colour, x_rotation=-400, y_rotation=-800,eigen_faust_Bool=False)
+    paths = glob2.glob(direc + "*femur_linear_linear_AE_w2*")
+    trainingAEViz(rawData, paths, triangles, "femur_linear_AE_", colour,
+                  x_rotation=-400, y_rotation=-800,eigen_faust_Bool=False)
     print("fin")
 
 if __name__ == '__main__':

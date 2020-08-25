@@ -42,18 +42,16 @@ def main():
                   'regularization': [1e-4],
                   'activation': ['linear']}
 
-    training_function(data, param_grid,name='faust_linear_')
+    # training_function(data, param_grid,name='faust_linear_')
 
     #### VISUALISING ####
 
     # Set the directory and the wild cards to select all runs of choice
 
-    # results/AE_results/faust_AE_w2_dim_100_reg_0.0001_epoch_20000_lr_0.0001_bs_25.csv #
-    # Appears to be the best run
-
     direc = '../results/'
-    paths = glob2.glob(direc + "*faustlinear_AE_w2_*")
-    trainingAEViz(rawData, paths, triangles, "faustlinear_AE_", colour,eigen_faust_Bool=True)
+    paths = glob2.glob(direc + "*faust_linear_linear_AE_w2_*")
+    trainingAEViz(rawData, paths, triangles, "faust_linear_AE_", colour,
+                  eigen_faust_Bool=True)
 
 if __name__ == '__main__':
     main()
