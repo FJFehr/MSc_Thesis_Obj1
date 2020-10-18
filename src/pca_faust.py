@@ -46,9 +46,10 @@ def AnalyticalPCA(y, dimension, type = "sklearn"):
 
 def main():
     import os
-    os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
+    # os.chdir("/media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src")
     # fetch data
-    meshes = loadMeshes("../meshes/")
+    meshes = loadMeshes("../meshes/faust/")
+    # print(np.array(meshes[0].triangles).shape, np.array(meshes[0].vertices).shape)
 
     # create vertices dataset
     rawData = meshToData(meshes)
@@ -80,14 +81,14 @@ def main():
     np.savetxt('../results/faust_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
     # visualise and save the mean mesh
-    mean3DVis(rawData, triangles, "faust_PCA_", col=colour)
+    mean3DVis(rawData, triangles, "faust_PCA_", col=colour,cameraName="faust")
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
     np.savetxt('../results/faust_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
-    modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "faust_PCA_", col=colour)
+    modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "faust_PCA_", col=colour,cameraName="faust")
 
     # Plot modes of variation
     PlotModesVaration(3, "faust_PCA_")

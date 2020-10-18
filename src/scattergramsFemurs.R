@@ -16,13 +16,13 @@ bPCA <- read.csv("../results/femur_PCA_ShapeParamaters_b.csv",header = F) %>%
 bLinearAE <-  read.csv("../results/femur_linear_AE_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame() 
 # Were reversed so getting correct orientation
-bLinearAE$V1 <- bLinearAE$V1 *-1
-# bLinearAE$V2 <- bLinearAE$V2 *-1
+# bLinearAE$V1 <- bLinearAE$V1 *-1
+bLinearAE$V2 <- bLinearAE$V2 *-1
 
 # # Shape parameters Non-linear AutoEncoder
 bNonlinearAE <- read.csv("../results/femur_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
   as.data.frame() 
-bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
+# bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
 # bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
 
 # Eigen values from PCA

@@ -154,7 +154,7 @@ def training_function(data, param_grid, name):
         print("completed " + str(i/len(params)))
         print("--- %s seconds ---" % +(time.time() - start_time))
 
-def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0,eigen_faust_Bool= True):
+def trainingAEViz(data, paths,triangles,name,col,cameraName,eigen_faust_Bool= True):
 
     '''
     Once training has been run you will want to visualise the results
@@ -170,7 +170,7 @@ def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0,eige
 
     #Calculate the mean
     mean = data.mean(axis=0)
-    mean3DVis(data, triangles, name, col,x_rotation=x_rotation, y_rotation=y_rotation)
+    mean3DVis(data, triangles, name, col,cameraName=cameraName)
 
     # Center data
     data = data - mean
@@ -198,7 +198,7 @@ def trainingAEViz(data, paths,triangles,name,col,x_rotation=0, y_rotation=0,eige
             pca_eigen_values = np.loadtxt('../results/femur_PCA_Eigen.csv', delimiter=',')
 
         # Save the modes of variations pictures
-        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col,x_rotation=x_rotation, y_rotation=y_rotation)
+        modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col,cameraName=cameraName)
 
         # Combine them
         PlotModesVaration(3, name)

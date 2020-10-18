@@ -88,35 +88,28 @@ def meshToData(meshes):
     return data
 
 
-# def meshVisSave(mesh, path, col, x_rotation=0,y_rotation=0):
-#     '''
-#     This function saves a mesh visualisation as png
-#
-#     :param mesh: 3D mesh obj from open3D
-#     :param path: path and name to where you would like it saved
-#     :param col: The colour in a list [255,255,255]
-#     :param x_rotation: The amount you rotate in the x direction
-#     :param y_rotation: The amount you rotate in the y direction
-#     :return: saves mesh
-#     '''
-#     # compute normals to visualise
-#     mesh.compute_vertex_normals()
-#
-#     # convert the 255 code to be between 0-1 of Open3d
-#     col = [i / 255.0 for i in col]
-#
-#     mesh.paint_uniform_color(col)
-#     vis = o3d.visualization.Visualizer()
-#     vis.create_window()
-#     ctr = vis.get_view_control()
-#     vis.add_geometry(mesh)
-#     ctr.rotate(x_rotation, y_rotation)
-#     vis.update_geometry(mesh)
-#     vis.poll_events()
-#     vis.capture_screen_image(path + ".png")
-#     vis.destroy_window()
+def meshVis(mesh, col):
+    '''
+    This function shows a mesh visualisation
+    Press p to save the camera settings
 
-def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
+    :param mesh: 3D mesh obj from open3D
+    :param col: The colour in a list [255,255,255]
+    :return: saves mesh
+    '''
+    # compute normals to visualise
+    mesh.compute_vertex_normals()
+
+    # convert the 255 code to be between 0-1 of Open3d
+    col = [i / 255.0 for i in col]
+
+    vis = o3d.visualization.Visualizer()
+    vis.create_window()
+    vis.add_geometry(mesh)
+    vis.run()
+    vis.destroy_window()
+
+def meshVisSave(mesh, path, col, cameraName):
     '''
     This function saves a mesh visualisation as png
 
@@ -137,16 +130,15 @@ def meshVisSave(mesh, path, col, x_rotation=0, y_rotation=0):
     vis.create_window()
     ctr = vis.get_view_control()
     vis.add_geometry(mesh)
-    # ctr.set_lookat(lookat = [0.04352001454441809, 0.21342596571740188, -0.010379344423086655])
-    # ctr.set_zoom(zoom=0.7)
-    ctr.rotate(x_rotation, y_rotation)
+    parameters = o3d.io.read_pinhole_camera_parameters(cameraName+"CameraSettings.json")
+    ctr.convert_from_pinhole_camera_parameters(parameters)
     vis.update_geometry(mesh)
     vis.poll_events()
     vis.capture_screen_image(path + ".png")
     vis.destroy_window()
 
 
-def mean3DVis(data, triangles, name, col,x_rotation=0,y_rotation=0):
+def mean3DVis(data, triangles, name, col,cameraName):
     '''
     Function takes in data and visualises the mean
 
@@ -159,7 +151,7 @@ def mean3DVis(data, triangles, name, col,x_rotation=0,y_rotation=0):
 
     mean = data.mean(axis = 0)
     mean_mesh = vecToMesh(mean, triangles)
-    meshVisSave(mean_mesh, "../results/" + name + "mean", col,x_rotation= x_rotation,y_rotation=y_rotation)
+    meshVisSave(mean_mesh, "../results/" + name + "mean", col,cameraName)
 
 
 def shapeParameters(data,components):
@@ -186,7 +178,7 @@ def shapeParameters(data,components):
     return b
 
 
-def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col,x_rotation=0, y_rotation=0):
+def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangles, name, col,cameraName):
     '''
     This function saves the individual modes of variation once they have been calculated
 
@@ -214,8 +206,7 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
             if (min_extreme+j != 0):
                 meshVisSave(newMesh, '../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)),
                             col,
-                            x_rotation= x_rotation,
-                            y_rotation=y_rotation)
+                            cameraName)
 
 def trim(im):
 
@@ -259,6 +250,7 @@ def PlotModesVaration(number_of_modes, name):
                 img = trim(img)
             plt.imshow(img)
             plt.axis('off')
+            plt.ylim(850, 0)
             if (min_extreme + j != 0):
                 plt.title(f'${str((min_extreme+j))} \sqrt\lambda_{i+1}$', fontsize=10)
             else:
@@ -267,6 +259,97 @@ def PlotModesVaration(number_of_modes, name):
 
     plt.savefig('../results/'+name+'modesVariation' + '.pdf', dpi=600)
     #plt.show()
+
+def display_image_in_actual_size(img):
+
+    dpi = 80
+    width, height = img.size
+
+    # What size does the figure need to be in inches to fit the image?
+    figsize = width / float(dpi), height / float(dpi)
+
+    # Create a figure of the right size with one axes that takes up the full figure
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_axes([0, 0, 1, 1])
+
+    # Hide spines, ticks, etc.
+    ax.axis('off')
+
+    # Display the image.
+    ax.imshow(img, cmap='gray')
+
+
+
+# def PlotModesVaration(number_of_modes, name):
+#     '''
+#     This function combines the modes of variation and plots them together and saves
+#
+#     :param number_of_modes: how many modes do you want to plot
+#     :param name: the name of the saved file of pictures
+#     :return:
+#     '''
+#
+#     min_extreme = -3
+#     pics_per_mode = 7
+#     # set the y lims so that it encorporates the largest and smalest extremes
+#
+#     fig_count = 1
+#     plt.figure()
+#     plt.subplot(2, 3, 1)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_13"+'.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#     plt.ylim(0,820)
+#     plt.subplot(2, 3, 2, sharey = a)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_12"+'.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#     plt.subplot(2, 3, 3, sharey = a)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_11"+'.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#
+#     plt.subplot(2, 3, 4, sharey=a)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_1-3" + '.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#     plt.subplot(2, 3, 5, sharey=a)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_1-2" + '.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#     plt.subplot(2, 3, 6, sharey=a)
+#     img = Image.open('../results/' + "faust_PCA_" + "mode_1-1" + '.png')
+#     img = trim(img)
+#     plt.imshow(img)
+#     plt.axis('off')
+#
+#     # plt.tight_layout(pad=3)
+#     # for i in range(number_of_modes):
+#     #     for j in range(pics_per_mode):
+#     #         plt.subplot(number_of_modes, pics_per_mode, fig_count)
+#     #         if (min_extreme+j == 0):
+#     #             img = Image.open('../results/'+ name + 'mean.png')
+#     #             img = trim(img)
+#     #         else:
+#     #             img = Image.open('../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)) + '.png')
+#     #             img = trim(img)
+#     #         # plt.imshow(img)
+#     #         display_image_in_actual_size(img)
+#     #         if (min_extreme + j != 0):
+#     #             plt.title(f'${str((min_extreme+j))} \sqrt\lambda_{i+1}$', fontsize=10)
+#     #         else:
+#     #             plt.title("0", fontsize=10)
+#     #         fig_count += 1
+#
+#     plt.savefig('../results/'+name+'modesVariation' + '.pdf', dpi=600)
+#     #plt.show()
+
+
 
 def PlotScatterGram(b, num_of_modes, name):
     '''

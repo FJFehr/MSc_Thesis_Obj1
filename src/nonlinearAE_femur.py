@@ -40,11 +40,11 @@ def main():
 
     # Best result
     param_grid = {'dimension': [50],
-                  'epochs': [20000],
+                  'epochs': [1000],
                   'learning_rate': [1e-4],
                   'batch_size': [10],
-                  'regularization': [1e-4],
-                  'activation': ['relu']}
+                  'regularization': [1e-5],
+                  'activation': ["tanh"]}
 
     training_function(data, param_grid,name='femur_nonlinear_')
 
@@ -52,9 +52,8 @@ def main():
 
     # Set the directory and the wild cards to select all runs of choice
     direc = '../results/'
-    # Relu looks good, elu is good too more computation (but stops a potential dead relu problem)
-    paths = glob2.glob(direc + "*femur_nonlinear_relu_AE_w2*")
-    trainingAEViz(rawData, paths, triangles, "femur_nonlinear_AE_", colour, x_rotation=-400, y_rotation=-800,eigen_faust_Bool=False)
+    paths = glob2.glob(direc + "*femur_nonlinear_tanh_AE_w2*")
+    trainingAEViz(rawData, paths, triangles, "femur_nonlinear_AE_", colour, cameraName="femur",eigen_faust_Bool=False)
 
 if __name__ == '__main__':
     main()

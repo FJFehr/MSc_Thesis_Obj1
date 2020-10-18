@@ -6,7 +6,7 @@ import numpy as np
 from src.meshManipulation import \
     meshToData,mean3DVis,\
     loadMeshes,PlotModesVaration,\
-    modesOfVariationVis, PlotScatterGram,shapeParameters, variationExplainedPlot
+    modesOfVariationVis, PlotScatterGram,shapeParameters, variationExplainedPlot,meshVis
 from sklearn.decomposition import PCA
 
 def AnalyticalPCA(y, dimension, type = "sklearn"):
@@ -66,6 +66,9 @@ def main():
 
     # Set the colour
     colour = [180, 180, 180] # Grey
+    # meshVis(meshes[0], colour)
+    # find the position you like and press "p" This will save the camera position
+    # save as femurCameraSettings.json in src
 
     # PCA - The data is too large to do a full PCA, thus we do an SVD - This is built in in the PCA code
     # PCA
@@ -82,14 +85,14 @@ def main():
     np.savetxt('../results/femur_PCA_Eigen.csv', eigenvalues, delimiter=',')
 
     # visualise and save the mean mesh
-    mean3DVis(rawData, triangles, "femur_PCA_", col=colour, x_rotation=-400, y_rotation=-800)
+    mean3DVis(rawData, triangles, "femur_PCA_", col=colour, cameraName="femur")
 
     # Get and save shape parameters
     b = shapeParameters(data, components)
     np.savetxt('../results/femur_PCA_ShapeParamaters_b.csv', b, delimiter=',')
 
     # Save modes of variation
-    modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "femur_PCA_", col=colour,x_rotation=-400,y_rotation=-800)
+    modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "femur_PCA_", col=colour, cameraName="femur")
 
     # Plot modes of variation
     PlotModesVaration(3, "femur_PCA_")

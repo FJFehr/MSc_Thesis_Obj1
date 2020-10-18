@@ -3,7 +3,7 @@
 # 2 July 2020
 
 library(tidyverse)
-setwd("../MSc_Thesis_Obj1/src")
+# setwd("../../media/fabio/Storage/UCT/Thesis/Coding/MSc_Thesis_Obj1/src/")
 saving_directory = "../results/"
 
 # NOTE: The signs of the AE components might need to be reversed. *-1
@@ -18,14 +18,15 @@ bPCA <- read.csv("../results/faust_PCA_ShapeParamaters_b.csv",header = F) %>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
 # Were reversed so getting correct orientation
-# bLinearAE$V2 <- bLinearAE$V2 *-1
+# bLinearAE$V2 <- bLinearAE$V2*-1
+bLinearAE$V1 <- bLinearAE$V1*-1
 
 # Shape parameters Non-linear AutoEncoder
 bNonlinearAE <- read.csv("../results/faust_nonlinear_AE_ShapeParamaters_b.csv",header = F)%>%
   as.data.frame() %>% 
   mutate(class = as.factor(rep(seq(0,9),10)))
 # bNonlinearAE$V1 <- bNonlinearAE$V1 *-1
-# bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
+bNonlinearAE$V2 <- bNonlinearAE$V2 *-1
 
 # Eigen values from PCA
 eigen <- read.csv("../results/faust_PCA_Eigen.csv",header = F) %>%

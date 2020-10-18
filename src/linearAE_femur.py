@@ -38,10 +38,10 @@ def main():
 
     # Best result
     param_grid = {'dimension': [50],
-                  'epochs': [20000],
+                  'epochs': [1000],
                   'learning_rate': [1e-4],
                   'batch_size': [10],
-                  'regularization': [1e-4],
+                  'regularization': [1e-5],
                   'activation': ['linear']}
 
     training_function(data, param_grid,name='femur_linear_')
@@ -53,7 +53,7 @@ def main():
     direc = '../results/'
     paths = glob2.glob(direc + "*femur_linear_linear_AE_w2*")
     trainingAEViz(rawData, paths, triangles, "femur_linear_AE_", colour,
-                  x_rotation=-400, y_rotation=-800,eigen_faust_Bool=False)
+                  cameraName="femur",eigen_faust_Bool=False)
     print("fin")
 
 if __name__ == '__main__':
