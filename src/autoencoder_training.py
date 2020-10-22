@@ -154,7 +154,7 @@ def training_function(data, param_grid, name):
         print("completed " + str(i/len(params)))
         print("--- %s seconds ---" % +(time.time() - start_time))
 
-def trainingAEViz(data, paths,triangles,name,col,cameraName,eigen_faust_Bool= True):
+def trainingAEViz(data, paths,triangles,name,col,cameraName,eigen_faust_Bool= True,trim_type=""):
 
     '''
     Once training has been run you will want to visualise the results
@@ -201,7 +201,7 @@ def trainingAEViz(data, paths,triangles,name,col,cameraName,eigen_faust_Bool= Tr
         modesOfVariationVis(mean, components, pca_eigen_values, 3, triangles, name, col = col,cameraName=cameraName)
 
         # Combine them
-        PlotModesVaration(3, name)
+        PlotModesVaration(3, name,trim_type=trim_type)
 
         # Plot basic scattergram
         PlotScatterGram(b, 3, name)

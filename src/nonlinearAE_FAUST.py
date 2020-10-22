@@ -52,7 +52,7 @@ def main():
 
     paths = glob2.glob(direc + "faust_nonlinear_tanh_AE_w2_*")
 
-    trainingAEViz(rawData, paths, triangles, "faust_nonlinear_AE_", colour, cameraName="faust",eigen_faust_Bool= True)
+    trainingAEViz(rawData, paths, triangles, "faust_nonlinear_AE_", colour, cameraName="faust",eigen_faust_Bool= True,trim_type="faust")
 
 
 if __name__ == '__main__':

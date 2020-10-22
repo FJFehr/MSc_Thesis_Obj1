@@ -208,7 +208,7 @@ def modesOfVariationVis(mean, components, singular_vals,number_of_modes,triangle
                             col,
                             cameraName)
 
-def trim(im):
+def trim(im, trim_type = "none"):
 
     '''
     This function trims the white space of an image
@@ -216,15 +216,22 @@ def trim(im):
     :param im: image
     :return: trimmed image
     '''
-    bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
-    diff = ImageChops.difference(im, bg)
-    diff = ImageChops.add(diff, diff, 2.0, -100)
-    bbox = diff.getbbox()
-    if bbox:
-        return im.crop(bbox)
+
+    if(trim_type== "faust"):
+        return (im.crop((739,47,1143,930))) #min left, min upper, max right, and max lower pixel coordinate.)
+    if(trim_type== "femur"):
+        return (im.crop((847,114,1006,863))) #min left, min upper, max right, and max lower pixel coordinate.)
+    else:
+        bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
+        diff = ImageChops.difference(im, bg)
+        diff = ImageChops.add(diff, diff, 2.0, -100)
+        bbox = diff.getbbox()
+        print(bbox)
+        if bbox:
+            return im.crop(bbox)
 
 
-def PlotModesVaration(number_of_modes, name):
+def PlotModesVaration(number_of_modes, name,trim_type):
     '''
     This function combines the modes of variation and plots them together and saves
 
@@ -244,13 +251,13 @@ def PlotModesVaration(number_of_modes, name):
             plt.subplot(number_of_modes, pics_per_mode, fig_count)
             if (min_extreme+j == 0):
                 img = Image.open('../results/'+ name + 'mean.png')
-                img = trim(img)
+                img = trim(img,trim_type=trim_type)
             else:
                 img = Image.open('../results/' + name + "mode_" + str(i+1) + str((min_extreme+j)) + '.png')
-                img = trim(img)
+                img = trim(img,trim_type=trim_type)
             plt.imshow(img)
             plt.axis('off')
-            plt.ylim(850, 0)
+            # plt.ylim(850, 0)
             if (min_extreme + j != 0):
                 plt.title(f'${str((min_extreme+j))} \sqrt\lambda_{i+1}$', fontsize=10)
             else:

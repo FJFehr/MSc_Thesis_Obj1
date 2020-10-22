@@ -42,7 +42,7 @@ def main():
                   'regularization': [1e-5],
                   'activation': ['linear']}
 
-    training_function(data, param_grid,name='faust_linear_')
+    # training_function(data, param_grid,name='faust_linear_')
 
     #### VISUALISING ####
 
@@ -52,7 +52,7 @@ def main():
     # paths = glob2.glob(direc + "*faust_linear_linear_AE_w2_*")
     paths = glob2.glob(direc + "faust_linear_linear_AE_w2_*")
     trainingAEViz(rawData, paths, triangles, "faust_linear_AE_", colour, cameraName="faust",
-                  eigen_faust_Bool=True)
+                  eigen_faust_Bool=True,trim_type="faust")
 
 if __name__ == '__main__':
     main()

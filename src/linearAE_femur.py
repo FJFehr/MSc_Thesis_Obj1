@@ -44,7 +44,7 @@ def main():
                   'regularization': [1e-5],
                   'activation': ['linear']}
 
-    training_function(data, param_grid,name='femur_linear_')
+    # training_function(data, param_grid,name='femur_linear_')
 
     #### VISUALISING ####
 
@@ -53,7 +53,7 @@ def main():
     direc = '../results/'
     paths = glob2.glob(direc + "*femur_linear_linear_AE_w2*")
     trainingAEViz(rawData, paths, triangles, "femur_linear_AE_", colour,
-                  cameraName="femur",eigen_faust_Bool=False)
+                  cameraName="femur",eigen_faust_Bool=False,trim_type="femur")
     print("fin")
 
 if __name__ == '__main__':

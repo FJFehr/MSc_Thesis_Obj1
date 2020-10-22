@@ -91,7 +91,7 @@ def main():
     modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "faust_PCA_", col=colour,cameraName="faust")
 
     # Plot modes of variation
-    PlotModesVaration(3, "faust_PCA_")
+    PlotModesVaration(3, "faust_PCA_",trim_type="faust")
 
     # Plot a basic scatterGram
     PlotScatterGram(b, 3, "faust_PCA_")

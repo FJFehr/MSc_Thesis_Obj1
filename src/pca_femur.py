@@ -95,7 +95,7 @@ def main():
     modesOfVariationVis(mean, components, eigenvalues, 3, triangles, "femur_PCA_", col=colour, cameraName="femur")
 
     # Plot modes of variation
-    PlotModesVaration(3, "femur_PCA_")
+    PlotModesVaration(3, "femur_PCA_",trim_type="femur")
 
     # Plot a basic scatterGram
     PlotScatterGram(b, 3, "femur_PCA_")

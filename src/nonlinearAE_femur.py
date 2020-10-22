@@ -46,14 +46,14 @@ def main():
                   'regularization': [1e-5],
                   'activation': ["tanh"]}
 
-    training_function(data, param_grid,name='femur_nonlinear_')
+    # training_function(data, param_grid,name='femur_nonlinear_')
 
     #### VISUALISING ####
 
     # Set the directory and the wild cards to select all runs of choice
     direc = '../results/'
     paths = glob2.glob(direc + "*femur_nonlinear_tanh_AE_w2*")
-    trainingAEViz(rawData, paths, triangles, "femur_nonlinear_AE_", colour, cameraName="femur",eigen_faust_Bool=False)
+    trainingAEViz(rawData, paths, triangles, "femur_nonlinear_AE_", colour, cameraName="femur",eigen_faust_Bool=False,trim_type="femur")
 
 if __name__ == '__main__':
     main()
