@@ -235,13 +235,14 @@ def trim(im, trim_type = "none"):
     if(trim_type== "femur"):
         return (im.crop((847,114,1006,863))) #min left, min upper, max right, and max lower pixel coordinate.)
     else:
-        bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
-        diff = ImageChops.difference(im, bg)
-        diff = ImageChops.add(diff, diff, 2.0, -100)
-        bbox = diff.getbbox()
-        print(bbox)
-        if bbox:
-            return im.crop(bbox)
+        # bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
+        # diff = ImageChops.difference(im, bg)
+        # diff = ImageChops.add(diff, diff, 2.0, -100)
+        # bbox = diff.getbbox()
+        # print(bbox)
+        # if bbox:
+        #     return im.crop(bbox)
+        return im
 
 
 def PlotModesVaration(number_of_modes, name,trim_type):
